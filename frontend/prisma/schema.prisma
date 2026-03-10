@@ -1,55 +1,56 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-// SQLite does not support native Enums, using Strings
 // Role: ADMIN, STAFF
 // TicketStatus: TODO, IN_PROGRESS, AWAITING_USER, RESOLVED, CLOSED
 // Priority: P0 (Critical), P1 (High), P2 (Normal - default), P3 (Low)
 
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
   password  String
   name      String?
-  role      String   @default("STAFF")
-  isActive  Boolean  @default(true)
-  tickets   Ticket[] @relation("AssignedTickets")
+  role      String    @default("STAFF")
+  isActive  Boolean   @default(true)
+  tickets   Ticket[]  @relation("AssignedTickets")
   comments  Comment[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Ticket {
-  id            Int          @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   title         String
   description   String
-  status        String       @default("TODO")
-  priority      String       @default("P2")
-  requesterName String?      // Optional for anonymous submissions
-  assignedTo    User?        @relation("AssignedTickets", fields: [assignedToId], references: [id])
+  status        String    @default("TODO")
+  priority      String    @default("P2")
+  requesterName String?
+  assignedTo    User?     @relation("AssignedTickets", fields: [assignedToId], references: [id])
   assignedToId  Int?
   slaBreachAt   DateTime?
   tasks         Task[]
   comments      Comment[]
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
-  content   String
-  ticket    Ticket   @relation(fields: [ticketId], references: [id])
-  ticketId  Int
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
-  authorName String? // Fallback for anonymous or external names
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  content    String
+  ticket     Ticket   @relation(fields: [ticketId], references: [id])
+  ticketId   Int
+  author     User?    @relation(fields: [authorId], references: [id])
+  authorId   Int?
+  authorName String?
+  createdAt  DateTime @default(now())
 }
 
 model Task {

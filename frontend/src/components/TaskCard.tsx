@@ -1,11 +1,13 @@
 "use client";
 import React from 'react';
 import { MessageSquare, CheckSquare, Clock } from 'lucide-react';
-import { Ticket, Task } from '@/types';
+import { Ticket, Task, TicketStatus } from '@/types';
 
 interface TaskCardProps {
   ticket: Ticket;
-  onDragStart: (e: React.DragEvent) => void;
+  onDragStart?: (e: React.DragEvent) => void;
+  onClick?: () => void;
+  onMove?: (status: TicketStatus) => void;
 }
 
 const priorityConfig: Record<string, { bg: string; text: string; label: string }> = {
@@ -15,7 +17,7 @@ const priorityConfig: Record<string, { bg: string; text: string; label: string }
   P3: { bg: 'bg-zinc-500/20',   text: 'text-zinc-400',   label: 'P3 – Low' },
 };
 
-const TaskCard = ({ ticket, onDragStart }: TaskCardProps) => {
+const TaskCard = ({ ticket, onDragStart, onClick }: TaskCardProps) => {
   const priority = priorityConfig[ticket.priority] ?? priorityConfig.P2;
   const completedTasks = ticket.tasks?.filter((t: Task) => t.status === 'DONE').length ?? 0;
   const totalTasks = ticket.tasks?.length ?? 0;
@@ -24,6 +26,7 @@ const TaskCard = ({ ticket, onDragStart }: TaskCardProps) => {
     <div
       draggable
       onDragStart={onDragStart}
+      onClick={onClick}
       className="bg-zinc-900 border border-white/5 rounded-xl p-4 shadow-sm hover:shadow-xl hover:border-indigo-500/30 transition-all cursor-grab active:cursor-grabbing group"
     >
       {/* Priority & ID */}

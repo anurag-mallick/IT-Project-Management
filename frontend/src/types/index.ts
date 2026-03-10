@@ -20,6 +20,7 @@ export interface Comment {
     username: string;
     name: string;
   };
+  authorName?: string;
 }
 
 export interface Task {

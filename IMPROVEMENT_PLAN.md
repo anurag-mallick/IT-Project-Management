@@ -12,8 +12,9 @@
 2. [Phase 1 — Foundation Hardening](#phase-1--foundation-hardening)
 3. [Phase 2 — Core Feature Expansion](#phase-2--core-feature-expansion)
 4. [Phase 3 — Scale & Integration](#phase-3--scale--integration)
-5. [Database Schema Evolution](#database-schema-evolution)
-6. [Architecture Diagram](#architecture-diagram)
+5. [Phase 4 — Next-Gen & AI Features (Zero-Cost)](#phase-4--next-gen--ai-features-zero-cost-focus)
+6. [Database Schema Evolution](#database-schema-evolution)
+7. [Architecture Diagram](#architecture-diagram)
 
 ---
 
@@ -177,6 +178,12 @@ jobs:
       - run: npm run build
 ```
 
+### 1.6 — Developer Experience (DX) & Observability
+
+- [ ] **Local Development Workflow:** Use **Supabase CLI** for local database branches and Edge Function testing without touching production. (100% Free)
+- [ ] **Error Tracking:** Integrate **Sentry** (Free Developer Tier limit is generous enough for most projects) for monitoring frontend exceptions and API failures.
+- [ ] **Component Library:** Set up **Storybook** for isolated, reusable UI component development. (Free/Open Source)
+
 ---
 
 ## Phase 2 — Core Feature Expansion
@@ -233,16 +240,29 @@ jobs:
 - [ ] Swimlanes (group by assignee, priority, or project)
 - [ ] Column collapse/expand
 
+### 2.8 — Agile / Scrum Workflows
+
+- [ ] **Sprints & Timeboxing:** Add `Sprint` model (startDate, endDate, goal) and link tickets.
+- [ ] **Story Points:** Add `storyPoints` integer to tickets for effort estimation.
+- [ ] **Burndown Charts:** Compute remaining effort dynamically based on resolved tickets in a sprint.
+
+### 2.9 — Frontend UX Enhancements
+
+- [ ] **Optimistic UI Updates:** Use React Query or SWR to instantly update the Kanban board before the server responds.
+- [ ] **Timezone-Aware Dates:** Standardize on UTC in DB, display local time for remote teams using built-in `Intl` or `date-fns`. (Crucial for SLAs)
+
 ---
 
 ## Phase 3 — Scale & Integration
 
-### 3.1 — Multi-Tenancy
+### 3.1 — Multi-Tenancy & Access Control
 
 - [ ] Add `organization_id` to all tables
 - [ ] Supabase RLS policies scoped by org
 - [ ] Org creation, invitation flows, team management
 - [ ] Subdomain-based routing (`acme.yourapp.com`)
+- [ ] **Granular RBAC:** Define roles (Admin, Member, Viewer) using Supabase Custom Claims or a custom `user_roles` table. (100% Free)
+- [ ] **Client Portal:** Restricted views where external stakeholders can submit and track tickets without seeing internal developer comments.
 
 ### 3.2 — Webhooks & Integrations
 
@@ -284,6 +304,18 @@ jobs:
 - [ ] Keyboard shortcuts (J/K navigation, Ctrl+K command palette)
 - [ ] ARIA labels and screen reader support
 - [ ] Dark/Light theme toggle
+
+---
+
+## Phase 4 — Next-Gen & AI Features (Zero-Cost Focus)
+
+**Goal:** Integrate intelligent features using free-tier services and built-in database tools.
+
+### 4.1 — Smart Features
+
+- [ ] **Duplicate Detection:** Use **Supabase pgvector** (included in free tier) to generate and store embeddings of ticket descriptions, warning users of potential duplicates on creation.
+- [ ] **Auto-Triage:** Automatically suggest the Priority or Assignee based on ticket text.
+- [ ] **Thread Summarization:** Use a generous free-tier LLM API (like **Groq** or **Gemini API Free Tier**) to summarize long ticket comment threads. No paid OpenAI API keys needed.
 
 ---
 

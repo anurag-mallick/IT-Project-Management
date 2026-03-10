@@ -25,7 +25,7 @@ const NewUserModal = ({ isOpen, onClose, onSuccess }: NewUserModalProps) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch(${process.env.NEXT_PUBLIC_API_URL}, {
+      const res = await fetch('/api/users', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

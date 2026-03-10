@@ -31,7 +31,7 @@ const KanbanBoard = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch(${process.env.NEXT_PUBLIC_API_URL}, {
+      const res = await fetch('/api/tickets', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to fetch tickets');
@@ -51,4 +51,57 @@ const KanbanBoard = () => {
     setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status: newStatus } : t));
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}
+      const res = await fetch(`/api/tickets/${ticketId}`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (!res.ok) throw new Error('Failed to move ticket');
+    } catch (err: any) {
+      setTickets(originalTickets); // Revert
+      setError(err.message);
+    }
+  };
+
+  return (
+    <div className="flex h-full w-full overflow-x-auto gap-4 p-4 pb-8">
+      {stages.map(stage => (
+        <div key={stage.id} className="min-w-[320px] w-[320px] flex-shrink-0 flex flex-col glass-card custom-scrollbar">
+          <div className="p-4 border-b border-white/5 flex items-center justify-between">
+            <h3 className="font-bold text-sm">{stage.name}</h3>
+            <span className="bg-white/10 text-xs px-2 py-1 rounded-md">
+              {tickets.filter(t => t.status === stage.id).length}
+            </span>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar min-h-[200px]">
+            {isLoading ? (
+              <div className="flex justify-center p-4"><Loader2 className="w-5 h-5 animate-spin text-white/20" /></div>
+            ) : (
+              tickets.filter(t => t.status === stage.id).map(ticket => (
+                <TaskCard 
+                  key={ticket.id} 
+                  ticket={ticket} 
+                  onClick={() => setSelectedTicket(ticket)}
+                  onMove={(newStatus: TicketStatus) => moveTicket(ticket.id, newStatus)}
+                />
+              ))
+            )}
+          </div>
+        </div>
+      ))}
+      
+      <TicketDetailModal 
+        ticket={selectedTicket} 
+        isOpen={!!selectedTicket} 
+        onClose={() => setSelectedTicket(null)} 
+        onUpdate={fetchTickets}
+      />
+    </div>
+  );
+};
+
+export default KanbanBoard;

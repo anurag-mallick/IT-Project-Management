@@ -41,7 +41,7 @@ const NewTicketModal = ({ isOpen, onClose, onSuccess }: NewTicketModalProps) => 
     if (isOpen) {
       setError('');
       setFormData({ title: '', description: '', priority: 'P2', status: 'TODO', assignedToId: '' });
-      fetch(${process.env.NEXT_PUBLIC_API_URL}, {
+      fetch('/api/users', {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(r => r.ok ? r.json() : [])
@@ -65,7 +65,7 @@ const NewTicketModal = ({ isOpen, onClose, onSuccess }: NewTicketModalProps) => 
       };
       if (formData.assignedToId) body.assignedToId = parseInt(formData.assignedToId);
 
-      const res = await fetch(${process.env.NEXT_PUBLIC_API_URL}, {
+      const res = await fetch('/api/tickets', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

@@ -1,9 +1,10 @@
 "use client";
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 const LoginPage = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
@@ -13,20 +14,20 @@ const LoginPage = () => {
     setError('');
     
     try {
-      const res = await fetch(${process.env.NEXT_PUBLIC_API_URL}, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+      const { data, error: sbError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
       
-      const data = await res.json();
-      if (res.ok) {
-        login(data.token, data.user);
+      if (sbError) {
+        setError(sbError.message);
+      } else if (data.session && data.user) {
+        login(data.session.access_token, data.user);
       } else {
-        setError(data.error || 'Login failed');
+        setError('Login failed no session');
       }
     } catch (err) {
-      setError('Connection error. Is the backend running?');
+      setError('Connection error. Is the internet connected?');
     }
   };
 
@@ -43,13 +44,13 @@ const LoginPage = () => {
           {error && <div className="bg-red-500/10 border border-red-500/20 text-red-500 text-xs p-3 rounded-lg text-center">{error}</div>}
           
           <div className="space-y-2">
-            <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold ml-1">User ID</label>
+            <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold ml-1">Email</label>
             <input 
               required
-              type="text" 
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your unique ID"
+              type="email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
               className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 transition-colors"
             />
           </div>

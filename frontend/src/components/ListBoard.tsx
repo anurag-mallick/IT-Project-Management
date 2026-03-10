@@ -35,7 +35,7 @@ const ListBoard = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(${process.env.NEXT_PUBLIC_API_URL}, {
+      const res = await fetch('/api/tickets', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!res.ok) throw new Error('Failed to fetch tickets');
