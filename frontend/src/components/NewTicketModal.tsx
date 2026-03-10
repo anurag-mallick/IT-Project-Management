@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { X } from 'lucide-react';
+import { TicketStatus, Priority } from '../types';
 
 interface NewTicketModalProps {
   isOpen: boolean;
@@ -12,7 +13,12 @@ interface NewTicketModalProps {
 const NewTicketModal = ({ isOpen, onClose, onSuccess }: NewTicketModalProps) => {
   const { token } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    title: string;
+    description: string;
+    priority: Priority;
+    status: TicketStatus;
+  }>({
     title: '',
     description: '',
     priority: 'MEDIUM',
@@ -45,7 +51,7 @@ const NewTicketModal = ({ isOpen, onClose, onSuccess }: NewTicketModalProps) => 
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
       <div className="glass-card w-full max-w-xl relative p-8 animate-in fade-in zoom-in duration-200">
         <button onClick={onClose} className="absolute right-6 top-6 text-white/40 hover:text-white">
@@ -72,7 +78,7 @@ const NewTicketModal = ({ isOpen, onClose, onSuccess }: NewTicketModalProps) => 
               <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold ml-1 text-left block">Priority</label>
               <select 
                 value={formData.priority}
-                onChange={(e) => setFormData({...formData, priority: e.target.value})}
+                onChange={(e) => setFormData({...formData, priority: e.target.value as Priority})}
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 transition-colors"
               >
                 <option value="LOW">Low</option>
@@ -85,7 +91,7 @@ const NewTicketModal = ({ isOpen, onClose, onSuccess }: NewTicketModalProps) => 
               <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold ml-1 text-left block">Initial Status</label>
               <select 
                 value={formData.status}
-                onChange={(e) => setFormData({...formData, status: e.target.value})}
+                onChange={(e) => setFormData({...formData, status: e.target.value as TicketStatus})}
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 transition-colors"
               >
                 <option value="TODO">To Do</option>

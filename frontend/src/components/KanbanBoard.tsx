@@ -3,13 +3,18 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import TaskCard from './TaskCard';
 import TicketDetailModal from '@/components/TicketDetailModal';
+import { Ticket, TicketStatus } from '@/types';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AlertCircle, Loader2 } from 'lucide-react';
 
 const KanbanBoard = () => {
-  const [tickets, setTickets] = useState<any[]>([]);
-  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { token } = useAuth();
 
-  const stages = [
+  const stages: { id: TicketStatus; name: string }[] = [
     { id: 'TODO', name: 'To Do' },
     { id: 'IN_PROGRESS', name: 'In Progress' },
     { id: 'AWAITING_USER', name: 'Awaiting User' },
@@ -23,20 +28,30 @@ const KanbanBoard = () => {
 
   const fetchTickets = async () => {
     if (!token) return;
+    setIsLoading(true);
+    setError(null);
     try {
       const res = await fetch('http://localhost:4000/api/tickets', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      if (!res.ok) throw new Error('Failed to fetch tickets');
       const data = await res.json();
       setTickets(data);
-    } catch (err) {
-      console.error('Failed to fetch tickets');
+    } catch (err: any) {
+      setError(err.message || 'Connection error');
+      console.error('Audit Error:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const moveTicket = async (ticketId: number, newStatus: string) => {
+  const moveTicket = async (ticketId: number, newStatus: TicketStatus) => {
+    // Optimistic Update
+    const originalTickets = [...tickets];
+    setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status: newStatus } : t));
+
     try {
-      await fetch(`http://localhost:4000/api/tickets/${ticketId}`, {
+      const res = await fetch(`http://localhost:4000/api/tickets/${ticketId}`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
@@ -44,11 +59,34 @@ const KanbanBoard = () => {
         },
         body: JSON.stringify({ status: newStatus }),
       });
+      
+      if (!res.ok) throw new Error('Failed to update ticket status');
       fetchTickets();
     } catch (err) {
-      console.error('Failed to move ticket');
+      setTickets(originalTickets); // Revert on failure
+      console.error('Move Error:', err);
     }
   };
+
+  if (isLoading && tickets.length === 0) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="glass-card p-6 flex items-center gap-4 text-red-400">
+          <AlertCircle />
+          <span>{error}. Please check if the backend is running.</span>
+          <button onClick={fetchTickets} className="text-indigo-400 font-bold hover:underline ml-4">Retry</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide">
@@ -69,15 +107,24 @@ const KanbanBoard = () => {
             </span>
           </div>
           
-          <div className="space-y-4">
-            {tickets.filter(t => t.status === stage.id).map((ticket: any) => (
-              <div key={ticket.id} onClick={() => setSelectedTicket(ticket)}>
-                <TaskCard 
-                  ticket={ticket} 
-                  onDragStart={(e: React.DragEvent) => e.dataTransfer.setData('ticketId', ticket.id.toString())}
-                />
-              </div>
-            ))}
+          <div className="space-y-4 min-h-[500px]">
+            <AnimatePresence>
+              {tickets.filter(t => t.status === stage.id).map((ticket) => (
+                <motion.div 
+                  key={ticket.id} 
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  onClick={() => setSelectedTicket(ticket)}
+                >
+                  <TaskCard 
+                    ticket={ticket} 
+                    onDragStart={(e: React.DragEvent) => e.dataTransfer.setData('ticketId', ticket.id.toString())}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         </div>
       ))}

@@ -1,7 +1,8 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
 const cors = require('cors');
 const http = require('http');
+const helmet = require('helmet');
+const morgan = require('morgan');
 const { Server } = require('socket.io');
 const { startWorker } = require('./worker');
 require('dotenv').config();
@@ -14,15 +15,16 @@ const io = new Server(server, {
   cors: { origin: "*" }
 });
 
-const prisma = new PrismaClient();
+const prisma = require('./utils/prisma');
 
+app.use(helmet());
+app.use(morgan('dev'));
 app.use(cors());
 app.use(express.json());
 
-const userRoutes = require('./routes/userRoutes');
-const ticketRoutes = require('./routes/ticketRoutes');
-app.use('/api', userRoutes);
-app.use('/api', ticketRoutes);
+// Routes
+app.use('/api', require('./routes/userRoutes'));
+app.use('/api', require('./routes/ticketRoutes'));
 
 // Basic health check
 app.get('/health', (req, res) => {

@@ -11,9 +11,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface SidebarProps {
   activeView: string;
   setActiveView: (view: 'kanban' | 'list' | 'reports') => void;
+  onNewTicket: () => void;
 }
 
-const Sidebar = ({ activeView, setActiveView }: SidebarProps) => {
+const Sidebar = ({ activeView, setActiveView, onNewTicket }: SidebarProps) => {
   const { user, logout } = useAuth();
   const [spacesOpen, setSpacesOpen] = useState(true);
 
@@ -58,6 +59,14 @@ const Sidebar = ({ activeView, setActiveView }: SidebarProps) => {
           </div>
           <span className="text-[10px] bg-indigo-600 px-1.5 py-0.5 rounded-full font-bold">2</span>
         </button>
+        
+        <button 
+          onClick={onNewTicket}
+          className="w-full flex items-center gap-3 px-3 py-2 mt-4 mb-2 rounded-lg text-sm bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all shadow-lg shadow-indigo-600/20 active:scale-[0.98]"
+        >
+          <Plus size={16} />
+          <span>New Ticket</span>
+        </button>
       </div>
 
       {/* Favorites */}
@@ -72,6 +81,16 @@ const Sidebar = ({ activeView, setActiveView }: SidebarProps) => {
           <Hash size={14} className="text-emerald-500" />
           <span>Ticket Queue</span>
         </button>
+        
+        {user?.role === 'ADMIN' && (
+          <a 
+            href="/admin/users"
+            className="w-full flex items-center gap-3 px-3 py-1.5 rounded-md text-xs text-white/40 hover:text-white hover:bg-white/5 transition-colors"
+          >
+            <Users size={14} className="text-purple-500" />
+            <span>User Management</span>
+          </a>
+        )}
       </div>
 
       {/* Spaces Hierarchy */}

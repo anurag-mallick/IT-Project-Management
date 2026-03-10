@@ -1,0 +1,41 @@
+export type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+export type TicketStatus = 'TODO' | 'IN_PROGRESS' | 'AWAITING_USER' | 'RESOLVED' | 'CLOSED';
+export type UserRole = 'ADMIN' | 'STAFF' | 'USER';
+
+export interface User {
+  id: number;
+  username: string;
+  name: string;
+  role: UserRole;
+  isActive: boolean;
+}
+
+export interface Comment {
+  id: number;
+  content: string;
+  createdAt: string;
+  authorId: number;
+  ticketId: number;
+  author: {
+    username: string;
+    name: string;
+  };
+}
+
+export interface Ticket {
+  id: number;
+  title: string;
+  description: string;
+  status: TicketStatus;
+  priority: Priority;
+  requesterName: string;
+  assignedToId?: number;
+  assignedTo?: {
+    username: string;
+    name: string;
+  };
+  comments?: Comment[];
+  createdAt: string;
+  updatedAt: string;
+  slaBreachAt?: string;
+}

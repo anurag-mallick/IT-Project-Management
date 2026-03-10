@@ -15,7 +15,11 @@ const Dashboard = () => {
   return (
     <AuthGuard>
       <div className="flex bg-zinc-950 min-h-screen text-white overflow-hidden">
-        <Sidebar activeView={activeView} setActiveView={setActiveView} />
+        <Sidebar 
+          activeView={activeView} 
+          setActiveView={setActiveView} 
+          onNewTicket={() => setIsModalOpen(true)}
+        />
         
         <main className="flex-1 overflow-y-auto flex flex-col">
           <NavHeader activeView={activeView} setActiveView={setActiveView} />

@@ -1,10 +1,11 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { Ticket, Comment as TicketComment } from '../types';
 import { X, Send, User, Clock, MessageSquare, Tag, AlertCircle } from 'lucide-react';
 
 interface TicketDetailModalProps {
-  ticket: any;
+  ticket: Ticket | null;
   isOpen: boolean;
   onClose: () => void;
   onUpdate: () => void;
@@ -12,7 +13,7 @@ interface TicketDetailModalProps {
 
 const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate }: TicketDetailModalProps) => {
   const { token, user } = useAuth();
-  const [comments, setComments] = useState<any[]>([]);
+  const [comments, setComments] = useState<TicketComment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -24,7 +25,7 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate }: TicketDetailMo
 
   const fetchComments = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/tickets/${ticket.id}/comments`, {
+      const res = await fetch(`http://localhost:4000/api/tickets/${ticket?.id}/comments`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -39,7 +40,7 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate }: TicketDetailMo
     if (!newComment.trim()) return;
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:4000/api/tickets/${ticket.id}/comments`, {
+      const res = await fetch(`http://localhost:4000/api/tickets/${ticket?.id}/comments`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -60,7 +61,7 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate }: TicketDetailMo
 
   const updateStatus = async (newStatus: string) => {
     try {
-      await fetch(`http://localhost:4000/api/tickets/${ticket.id}`, {
+      await fetch(`http://localhost:4000/api/tickets/${ticket?.id}`, {
         method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
@@ -77,7 +78,7 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate }: TicketDetailMo
   if (!isOpen || !ticket) return null;
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-end">
+    <div className="fixed inset-0 z-110 flex items-center justify-end">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
       
       <div className="w-full max-w-2xl h-full bg-zinc-950 border-l border-white/10 relative flex flex-col animate-in slide-in-from-right duration-300">
@@ -127,7 +128,7 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate }: TicketDetailMo
             </div>
             
             <div className="space-y-6">
-              {comments.map((comment) => (
+              {comments?.map((comment: TicketComment) => (
                 <div key={comment.id} className="flex gap-4">
                   <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center font-bold text-xs text-indigo-400 shrink-0 border border-white/5">
                     {comment.author?.name?.[0] || 'A'}

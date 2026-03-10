@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../utils/prisma');
 const { authenticate } = require('../middleware/authMiddleware');
-
-const prisma = new PrismaClient();
 
 // Internal: Professional Ticket Management
 router.get('/tickets', authenticate, async (req, res) => {
@@ -42,11 +40,39 @@ router.patch('/tickets/:id', authenticate, async (req, res) => {
   const { status, priority, title, description } = req.body;
 
   try {
-    const ticket = await prisma.ticket.update({
+    // 1. Fetch current state to detect transitions
+    const currentTicket = await prisma.ticket.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!currentTicket) return res.status(404).json({ error: 'Ticket not found' });
+
+    // 2. Perform the update
+    const updatedTicket = await prisma.ticket.update({
       where: { id: parseInt(id) },
       data: { status, priority, title, description }
     });
-    res.json(ticket);
+
+    // 3. Generate automated comments for transitions
+    const changes = [];
+    if (status && status !== currentTicket.status) {
+      changes.push(`status from **${currentTicket.status}** to **${status}**`);
+    }
+    if (priority && priority !== currentTicket.priority) {
+      changes.push(`priority from **${currentTicket.priority}** to **${priority}**`);
+    }
+
+    if (changes.length > 0) {
+      await prisma.comment.create({
+        data: {
+          content: `System: Updated ${changes.join(' and ')}`,
+          ticketId: parseInt(id),
+          authorId: req.user.id
+        }
+      });
+    }
+
+    res.json(updatedTicket);
   } catch (e) {
     res.status(400).json({ error: 'Failed to update ticket' });
   }

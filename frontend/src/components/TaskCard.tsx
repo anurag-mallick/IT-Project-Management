@@ -1,9 +1,10 @@
 "use client";
 import React from 'react';
 import { MoreHorizontal, MessageSquare, Paperclip, CheckSquare, Clock } from 'lucide-react';
+import { Ticket } from '@/types';
 
 interface TaskCardProps {
-  ticket: any;
+  ticket: Ticket;
   onDragStart: (e: React.DragEvent) => void;
 }
 
@@ -15,7 +16,7 @@ const TaskCard = ({ ticket, onDragStart }: TaskCardProps) => {
     <div 
       draggable
       onDragStart={onDragStart}
-      className="bg-zinc-900 border border-white/5 rounded-xl p-4 shadow-sm hover:shadow-xl hover:border-indigo-500/30 transition-all cursor-grab active:cursor-grabbing group animate-in fade-in slide-in-from-bottom-2 duration-300"
+      className="bg-zinc-900 border border-white/5 rounded-xl p-4 shadow-sm hover:shadow-xl hover:border-indigo-500/30 transition-all cursor-grab active:cursor-grabbing group"
     >
       {/* Card Header: Priority & ID */}
       <div className="flex justify-between items-start mb-3">
@@ -62,7 +63,7 @@ const TaskCard = ({ ticket, onDragStart }: TaskCardProps) => {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 border border-zinc-900 flex items-center justify-center text-[8px] font-bold">
+          <div className="w-5 h-5 rounded-full bg-linear-to-tr from-indigo-500 to-purple-600 border border-zinc-900 flex items-center justify-center text-[8px] font-bold">
             {ticket.assignedTo?.name?.[0] || 'U'}
           </div>
         </div>
