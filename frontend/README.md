@@ -10,15 +10,15 @@ A modern, high-performance IT Project Management web application built with Next
 - **Drag & Drop**: Intuitively move tickets between stages using smooth drag and drop interactions.
 - **List & Calendar Views**: View tasks in a traditional list format or mapped out on a calendar based on Due Dates.
 
-### Advanced Capabilities
-- **Realtime Collaboration**: Instant updates across all connected clients powered by Supabase Realtime subscriptions.
-- **Custom Kanban Stages**: Add, remove, or reorder Kanban columns dynamically to match your specific workflow needs.
-- **SLA Management**: Automated SLA tracking with visual breach warnings based on ticket priority (P0 to P3).
-- **Automations Engine**: Rule-based automations (e.g., auto-assignment, auto-tagging, or auto-resolution).
-- **Activity & Audit Logs**: Comprehensive historical tracking of priority, status, and assignment changes.
-- **Rich Text & Markdown**: Fully supported markdown ticket descriptions and threaded comments.
-- **Attachments**: Securely upload and manage files associated with specific tickets.
-- **Sub-tasks & Checklists**: Maintain granular task check-lists directly inside a ticket's details.
+### IT Asset Management (ITAM) 🖥️
+- **Asset Inventory**: Track laptops, servers, and software licenses in a dedicated management console.
+- **Ticket-Asset Linkage**: Link assets directly to support tickets for instant technical context.
+- **Lifecycle Tracking**: Monitor asset status (Active, Maintenance, Retired) and assignment history.
+
+### Advanced Automations ⚡
+- **Visual Rule Builder**: Create powerful "If This, Then That" logic without writing code.
+- **Intelligent Routing**: Automatically assign tickets or update statuses based on complex triggers and conditions.
+- **Engine Logic**: A robust backend engine that evaluates rules on every ticket interaction.
 
 ## Tech Stack 🛠️
 
