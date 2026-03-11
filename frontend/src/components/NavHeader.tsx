@@ -20,7 +20,7 @@ const NavHeader = ({ activeView, setActiveView, searchQuery, onSearchChange }: B
         <span className="text-white/40 hover:text-white cursor-pointer transition-colors">IT Operations</span>
         <ChevronRight size={14} className="text-white/20" />
         <div className="flex items-center gap-2 font-bold px-2 py-1 rounded bg-white/5">
-          <LayoutGrid size={14} className="text-indigo-400" />
+          <LayoutGrid size={14} className="text-blue-500" />
           <span>Ticket Board</span>
         </div>
         <Star size={14} className="text-white/20 hover:text-yellow-500 cursor-pointer transition-colors ml-2" />
@@ -30,13 +30,13 @@ const NavHeader = ({ activeView, setActiveView, searchQuery, onSearchChange }: B
       {onSearchChange !== undefined && (
         <div className="flex-grow max-w-md mx-4">
           <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-indigo-400 transition-colors" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-blue-500 transition-colors" />
             <input 
               type="text"
               placeholder="Search across all tickets..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-1.5 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500/50 focus:bg-white/10 transition-all"
+              className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-1.5 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all font-medium"
             />
           </div>
         </div>
