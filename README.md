@@ -84,9 +84,9 @@ NEXT_PUBLIC_API_URL=http://localhost:4000/api
 
 ## 🔑 Default Credentials
 
-| Username | Password   | Role  |
-| -------- | ---------- | ----- |
-| `admin`  | `admin123` | ADMIN |
+| Username                  | Password    | Role  |
+| ------------------------- | ----------- | ----- |
+| `admin@it-management.com` | `Quess@123` | ADMIN |
 
 ---
 
