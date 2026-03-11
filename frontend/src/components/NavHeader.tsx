@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { ChevronRight, Share2, Star, MoreHorizontal, LayoutGrid, List, BarChart, Calendar, Settings } from 'lucide-react';
+import { LayoutDashboard, Ticket as TicketIcon, Settings, Search, UserCircle, Bell, LogOut, Layout, Server, Zap, ChevronRight, Star, LayoutGrid, List, BarChart, Calendar } from 'lucide-react';
 import Link from 'next/link';
 
 interface BreadcrumbsProps {
@@ -58,8 +58,16 @@ const NavHeader = ({ activeView, setActiveView }: BreadcrumbsProps) => {
         </div>
 
         <div className="flex items-center gap-3 border-l border-white/10 pl-6 text-white/40">
-          <Share2 size={16} className="hover:text-white cursor-pointer" />
-          <MoreHorizontal size={18} className="hover:text-white cursor-pointer" />
+          <Link href="/board" className="text-sm font-medium hover:text-white transition-colors">
+            Board
+          </Link>
+          <Link href="/spaces" className="text-sm font-medium hover:text-white transition-colors">
+            Spaces
+          </Link>
+          <Link href="/assets" className="text-sm font-medium hover:text-white transition-colors flex items-center gap-1.5">
+            <Server className="w-4 h-4" />
+            Assets
+          </Link>
           <Link 
             href="/settings"
             className="flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded transition-all active:scale-[0.98]"

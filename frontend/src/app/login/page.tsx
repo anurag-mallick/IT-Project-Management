@@ -135,14 +135,17 @@ const LoginPage = () => {
               </button>
             </form>
 
-            {/* Divider */}
+            {/* Divider (Hidden for now until SSO is implemented) */}
+            {/*
             <div className="flex items-center my-8">
               <div className="flex-grow h-px bg-white/10"></div>
               <span className="px-4 text-[10px] text-slate-500 uppercase tracking-widest font-bold">Or continue with</span>
-              <div class="flex-grow h-px bg-white/10"></div>
+              <div className="flex-grow h-px bg-white/10"></div>
             </div>
+            */}
 
-            {/* Social Logins */}
+            {/* Social Logins (Hidden) */}
+            {/*
             <div className="grid grid-cols-2 gap-4">
               <button type="button" className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:bg-white/10 rounded-xl py-3 transition-colors active:scale-95">
                 <img alt="Google" className="w-4 h-4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCX1QxlBaPax4YiuLNhRkTtdAh8HLH1bqTPjhTyqVOQ-ftxilA5sMWQoesLUQ8agn7sFkHX66UEMIrmZuxChdAOXd-CPBidczjhUtM4u-Yb-RJJvdFJq-SPSl3oiPzknLDu9GApuSU4-0vd3VeTp-wgE2UUJMHJ3WQCCdg33h-EFkLGhPgdhX5gdWQdZVBCrsii2svHhe0f1k_8ii9-5wFoQuGAdNdeyn5P7oElz9V2HovX3qABH3wUw8TCUYuBW-drQQgGSsxISLPF" />
@@ -155,6 +158,7 @@ const LoginPage = () => {
                 <span className="text-sm font-medium text-slate-200">GitHub</span>
               </button>
             </div>
+            */}
           </div>
           
           <div className="mt-8 text-center relative z-10">

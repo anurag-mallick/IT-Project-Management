@@ -9,7 +9,7 @@ export const PATCH = withAuth(async (req: NextRequest, user: any, { params }: { 
   try {
     const { id } = await params;
     const body = await req.json();
-    const { status, priority, title, description, assignedToId, tags, dueDate } = body;
+    const { status, priority, title, description, assignedToId, tags, dueDate, assetId } = body;
 
     const currentTicket = await prisma.ticket.findUnique({
       where: { id: parseInt(id) }
@@ -21,6 +21,9 @@ export const PATCH = withAuth(async (req: NextRequest, user: any, { params }: { 
     if (status !== undefined) data.status = status;
     if ('assignedToId' in body) {
       data.assignedToId = assignedToId ? parseInt(assignedToId) : null;
+    }
+    if ('assetId' in body) {
+      data.assetId = assetId ? parseInt(assetId) : null;
     }
     if (tags !== undefined) {
       data.tags = tags;
@@ -41,7 +44,8 @@ export const PATCH = withAuth(async (req: NextRequest, user: any, { params }: { 
       data,
       include: { 
         assignedTo: { select: { id: true, username: true, name: true } },
-        checklists: { orderBy: { createdAt: 'asc' } }
+        checklists: { orderBy: { createdAt: 'asc' } },
+        asset: true
       }
     });
 

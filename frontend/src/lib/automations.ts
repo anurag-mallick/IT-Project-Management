@@ -1,5 +1,5 @@
 import { prisma } from './prisma';
-import { Ticket } from '@prisma/client';
+import { Ticket } from '@/types';
 
 export type TriggerEvent = 'ON_TICKET_CREATED' | 'ON_TICKET_UPDATED';
 
@@ -18,25 +18,36 @@ export async function runAutomations(trigger: TriggerEvent, ticket: Ticket) {
 
     for (const auto of automations) {
       // Evaluate condition
-      // Condition simple format: "priority=P0" or "status=TODO"
       let conditionMet = true;
       if (auto.condition) {
-        const [key, value] = auto.condition.split('=');
-        if (key && value && (ticket as any)[key.trim()] !== value.trim()) {
+        try {
+          const condition = JSON.parse(auto.condition);
+          const { field, value } = condition;
+          
+          if (field === 'priority' && (ticket as any).priority !== value) conditionMet = false;
+          if (field === 'status' && (ticket as any).status !== value) conditionMet = false;
+          if (field === 'tags' && !(ticket as any).tags?.includes(value)) conditionMet = false;
+        } catch (e) {
+          console.error("Condition parse error", e);
           conditionMet = false;
         }
       }
 
       if (conditionMet) {
         // Execute Action
-        // Action simple format: "ASSIGN_TO,1" or "SET_STATUS,IN_PROGRESS"
-        const [actionType, actionVal] = auto.action.split(',');
-        if (actionType === 'ASSIGN_TO' && actionVal) {
-          dataToUpdate.assignedToId = parseInt(actionVal);
-        } else if (actionType === 'SET_STATUS' && actionVal) {
-          dataToUpdate.status = actionVal.trim();
-        } else if (actionType === 'SET_PRIORITY' && actionVal) {
-          dataToUpdate.priority = actionVal.trim();
+        try {
+          const action = JSON.parse(auto.action);
+          const { type, value } = action;
+
+          if (type === 'ASSIGN_TO' && value) {
+            dataToUpdate.assignedToId = parseInt(value);
+          } else if (type === 'SET_STATUS' && value) {
+            dataToUpdate.status = value;
+          } else if (type === 'SET_PRIORITY' && value) {
+            dataToUpdate.priority = value;
+          }
+        } catch (e) {
+          console.error("Action parse error", e);
         }
       }
     }

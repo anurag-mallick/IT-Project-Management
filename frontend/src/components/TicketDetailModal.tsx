@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Ticket, Comment as TicketComment, User, Priority, ChecklistItem } from '../types';
-import { X, Send, User as UserIcon, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { X, Send, User as UserIcon, AlertCircle, CheckCircle, Loader2, Server } from 'lucide-react';
 import { uploadAttachment } from '@/lib/storage';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -35,6 +35,7 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate }: TicketDetailMo
   const { token } = useAuth();
   const [comments, setComments] = useState<TicketComment[]>([]);
   const [staff, setStaff] = useState<User[]>([]);
+  const [assets, setAssets] = useState<any[]>([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
   const [commentSuccess, setCommentSuccess] = useState(false);
@@ -47,6 +48,7 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate }: TicketDetailMo
   const [localDueDate, setLocalDueDate] = useState<string>('');
   const [checklists, setChecklists] = useState<ChecklistItem[]>([]);
   const [newChecklistTitle, setNewChecklistTitle] = useState('');
+  const [localAsset, setLocalAsset] = useState<string>('');
 
   useEffect(() => {
     if (isOpen && ticket) {
@@ -55,9 +57,11 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate }: TicketDetailMo
       setLocalAssignee(ticket.assignedToId ? String(ticket.assignedToId) : '');
       setLocalTags(ticket.tags ? ticket.tags.join(', ') : '');
       setLocalDueDate(ticket.dueDate ? ticket.dueDate.split('T')[0] : '');
+      setLocalAsset(ticket.assetId ? String(ticket.assetId) : '');
       setChecklists(ticket.checklists || []);
       fetchComments();
       fetchStaff();
+      fetchAssets();
     }
   }, [isOpen, ticket]);
 
@@ -84,6 +88,17 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate }: TicketDetailMo
     }
   };
 
+  const fetchAssets = async () => {
+    try {
+      const res = await fetch('/api/assets', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) setAssets(await res.json());
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const saveTicket = async () => {
     if (!ticket) return;
     setSaving(true);
@@ -98,6 +113,7 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate }: TicketDetailMo
           status: localStatus,
           priority: localPriority,
           assignedToId: localAssignee ? parseInt(localAssignee) : null,
+          assetId: localAsset ? parseInt(localAsset) : null,
           tags: localTags.split(',').map(t => t.trim()).filter(Boolean),
           dueDate: localDueDate || null
         })
@@ -245,6 +261,21 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate }: TicketDetailMo
             <div className="space-y-2 col-span-2">
               <label className="text-xs text-white/40 font-bold">Due Date</label>
               <input type="date" value={localDueDate} onChange={e => setLocalDueDate(e.target.value)} className="w-full bg-zinc-800 border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 [color-scheme:dark]" />
+            </div>
+
+            {/* IT Asset Management Separation */}
+            <div className="space-y-3 col-span-2 pt-4 border-t border-white/5 mt-2 bg-indigo-950/20 p-4 -mx-4 border-y border-indigo-500/10">
+              <h4 className="text-xs text-indigo-400 font-bold uppercase tracking-widest flex items-center gap-2">
+                <Server className="w-4 h-4" />
+                Linked IT Asset
+              </h4>
+              <p className="text-[11px] text-white/40">Link a specific hardware or software asset to this ticket for ITAM tracking.</p>
+              <select value={localAsset} onChange={e => setLocalAsset(e.target.value)} className="w-full bg-indigo-950/50 border border-indigo-500/20 text-indigo-200 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500">
+                <option value="">No Asset Linked</option>
+                {assets.map(asset => (
+                  <option key={asset.id} value={asset.id}>{asset.name} ({asset.type})</option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-3 col-span-2 pt-4 border-t border-white/5 mt-2">

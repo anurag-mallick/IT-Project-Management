@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { X, CheckCircle, AlertCircle, Upload } from 'lucide-react';
+import { X, Calendar as CalendarIcon, Clock, CheckCircle, Tag, ChevronDown, Folder as FolderIcon, Upload, File, Layout, Server, AlertCircle } from 'lucide-react';
 import { TicketStatus, Priority, User } from '../types';
 import { uploadAttachment } from '@/lib/storage';
 
@@ -25,6 +25,7 @@ const NewTicketModal = ({ isOpen, onClose, onSuccess }: NewTicketModalProps) => 
   const [error, setError] = useState('');
   const [staff, setStaff] = useState<User[]>([]);
   const [attachment, setAttachment] = useState<File | null>(null);
+  const [assets, setAssets] = useState<any[]>([]);
   const [formData, setFormData] = useState<{
     title: string;
     description: string;
@@ -33,6 +34,7 @@ const NewTicketModal = ({ isOpen, onClose, onSuccess }: NewTicketModalProps) => 
     assignedToId: string;
     tags: string;
     dueDate?: string;
+    assetId?: string;
   }>({
     title: '',
     description: '',
@@ -41,19 +43,30 @@ const NewTicketModal = ({ isOpen, onClose, onSuccess }: NewTicketModalProps) => 
     assignedToId: '',
     tags: '',
     dueDate: '',
+    assetId: '',
   });
 
   useEffect(() => {
     if (isOpen) {
       setError('');
       setAttachment(null);
-      setFormData({ title: '', description: '', priority: 'P2', status: 'TODO', assignedToId: '', tags: '', dueDate: '' });
+      setFormData({ title: '', description: '', priority: 'P2', status: 'TODO', assignedToId: '', tags: '', dueDate: '', assetId: '' });
+      
+      // Fetch staff
       fetch('/api/users', {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(r => r.ok ? r.json() : [])
         .then(data => setStaff(Array.isArray(data) ? data.filter((u: User) => u.isActive) : []))
         .catch(() => setStaff([]));
+
+      // Fetch assets
+      fetch('/api/assets', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(r => r.ok ? r.json() : [])
+        .then(data => setAssets(Array.isArray(data) ? data : []))
+        .catch(() => setAssets([]));
     }
   }, [isOpen, token]);
 
@@ -73,6 +86,7 @@ const NewTicketModal = ({ isOpen, onClose, onSuccess }: NewTicketModalProps) => 
       };
       if (formData.assignedToId) body.assignedToId = parseInt(formData.assignedToId);
       if (formData.dueDate) body.dueDate = new Date(formData.dueDate).toISOString();
+      if (formData.assetId) body.assetId = parseInt(formData.assetId);
 
       const res = await fetch('/api/tickets', {
         method: 'POST',
@@ -171,18 +185,38 @@ const NewTicketModal = ({ isOpen, onClose, onSuccess }: NewTicketModalProps) => 
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold ml-1 block">Assign To</label>
-            <select 
-              value={formData.assignedToId}
-              onChange={(e) => setFormData({...formData, assignedToId: e.target.value})}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 transition-colors"
-            >
-              <option value="">Unassigned</option>
-              {staff.map(u => (
-                <option key={u.id} value={u.id}>{u.name || u.username} ({u.role})</option>
-              ))}
-            </select>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold ml-1 block">Assign To</label>
+              <select 
+                value={formData.assignedToId}
+                onChange={(e) => setFormData({...formData, assignedToId: e.target.value})}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 transition-colors"
+              >
+                <option value="">Unassigned</option>
+                {staff.map(u => (
+                  <option key={u.id} value={u.id}>{u.name || u.username} ({u.role})</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold ml-1 block flex items-center gap-2">
+                <Server size={14} />
+                Related Asset (Optional)
+              </label>
+              <select
+                value={formData.assetId}
+                onChange={(e) => setFormData({...formData, assetId: e.target.value})}
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 transition-colors"
+              >
+                <option value="">None</option>
+                {assets.map(asset => (
+                  <option key={asset.id} value={asset.id.toString()}>
+                    {asset.name} ({asset.type})
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className="space-y-1.5">

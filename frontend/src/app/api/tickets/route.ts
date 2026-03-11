@@ -39,6 +39,7 @@ export const POST = withAuth(async (req: NextRequest, user: any) => {
         priority: priority || 'P2',
         status: status || 'TODO',
         assignedToId: assignedToId ? parseInt(assignedToId) : undefined,
+        assetId: assetId ? parseInt(assetId) : undefined,
         tags: tags || [],
         slaBreachAt: slaBreachAt || undefined
       },

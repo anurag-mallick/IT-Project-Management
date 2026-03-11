@@ -59,6 +59,12 @@ export interface Ticket {
   tasks?: Task[];
   tags?: string[];
   checklists?: ChecklistItem[];
+  assetId?: number | null;
+  asset?: {
+    id: number;
+    name: string;
+    type: string;
+  };
   createdAt: string;
   updatedAt: string;
   dueDate?: string;

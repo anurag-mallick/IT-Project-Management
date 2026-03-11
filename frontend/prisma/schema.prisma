@@ -6,7 +6,6 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 // Role: ADMIN, STAFF
@@ -24,6 +23,7 @@ model User {
   comments     Comment[]
   attachments  Attachment[]
   activityLogs ActivityLog[]
+  assets       Asset[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
@@ -42,6 +42,8 @@ model Ticket {
   timeSpent     Int          @default(0)
   folder        Folder?      @relation(fields: [folderId], references: [id])
   folderId      Int?
+  asset         Asset?       @relation(fields: [assetId], references: [id])
+  assetId       Int?
   tags          String[]
   tasks         Task[]
   checklists    ChecklistItem[]
@@ -155,4 +157,17 @@ model Folder {
   tickets     Ticket[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Asset {
+  id           Int      @id @default(autoincrement())
+  name         String
+  type         String   // e.g., LAPTOP, DESKTOP, SERVER, SOFTWARE
+  status       String   @default("ACTIVE") // e.g., ACTIVE, MAINTENANCE, RETIRED
+  description  String?
+  assignedTo   User?    @relation(fields: [assignedToId], references: [id])
+  assignedToId Int?
+  tickets      Ticket[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
