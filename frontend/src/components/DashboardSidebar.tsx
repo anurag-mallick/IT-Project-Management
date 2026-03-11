@@ -156,7 +156,7 @@ const Sidebar = ({ activeView, setActiveView, onNewTicket }: SidebarProps) => {
               <Github size={14} />
             </a>
             <a 
-              href="https://linkedin.com/in/anurag-mallick" 
+              href="https://www.linkedin.com/in/anuragmallick901/" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-white/40 hover:text-blue-400 transition-all transform hover:scale-110"

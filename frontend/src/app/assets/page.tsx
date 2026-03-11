@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import NavHeader from "@/components/NavHeader";
 import { 
   Laptop, Monitor, Server, Plus, Search, Edit2, Trash2, Box, 
-  MapPin, ShieldCheck, ChevronDown, ChevronUp
+  MapPin, ShieldCheck, ChevronDown, ChevronUp, ArrowLeft
 } from "lucide-react";
+import Link from "next/link";
 import { Asset, User } from "@/types";
 
 export default function AssetsPage() {
@@ -121,12 +122,21 @@ export default function AssetsPage() {
       
       <main className="flex-grow p-8 max-w-7xl mx-auto w-full overflow-y-auto">
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-              <Server className="w-8 h-8 text-blue-500" />
-              IT Asset Management
-            </h1>
-            <p className="text-slate-400 mt-2">Comprehensive inventory tracking for hardware and software.</p>
+          <div className="flex items-center gap-6">
+            <Link 
+              href="/" 
+              className="p-3 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-2xl transition-all border border-slate-700/50 shadow-xl"
+              title="Back to Dashboard"
+            >
+              <ArrowLeft size={24} />
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                <Server className="w-8 h-8 text-blue-500" />
+                IT Asset Management
+              </h1>
+              <p className="text-slate-400 mt-1">Comprehensive inventory tracking for hardware and software.</p>
+            </div>
           </div>
           <button 
             onClick={() => setIsModalOpen(true)}
