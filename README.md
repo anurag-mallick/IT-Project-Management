@@ -2,6 +2,8 @@
 
 A modern, full-stack **IT helpdesk and project management system** built for internal IT teams. Supports ticket creation, assignment, priority management, Kanban/List views, real-time analytics, and public ticket submission.
 
+🌍 **Live Application:** [it-project-mangement.vercel.app](https://it-project-mangement.vercel.app)
+
 ---
 
 ## ✨ Features
