@@ -65,6 +65,11 @@ export const POST = withAuth(async (req: NextRequest, user: any) => {
     return NextResponse.json(autoUpdatedTicket);
   } catch (err: any) {
     console.error('Ticket Create Error:', err);
-    return NextResponse.json({ error: `Failed to create ticket: ${err.message || 'Unknown error'}` }, { status: 500 });
+    const isAuthError = err.message?.includes('Authentication failed');
+    return NextResponse.json({ 
+      error: isAuthError 
+        ? 'Database Authentication Failed. Please check your Supabase credentials in Vercel.' 
+        : 'Failed to create ticket. Please check the server logs.' 
+    }, { status: 500 });
   }
 });
