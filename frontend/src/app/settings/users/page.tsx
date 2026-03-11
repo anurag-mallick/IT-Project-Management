@@ -115,11 +115,11 @@ export default function UserManagementPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={\`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider \${
+                    <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider ${
                       u.role === 'ADMIN' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 
                       u.role === 'STAFF' ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' : 
                       'bg-zinc-500/20 text-zinc-400 border border-zinc-500/30'
-                    }\`}>
+                    }`}>
                       {u.role || 'USER'}
                     </span>
                   </td>
