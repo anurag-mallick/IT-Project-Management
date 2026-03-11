@@ -42,7 +42,7 @@ const NewTicketModal = ({ isOpen, onClose, onSuccess }: NewTicketModalProps) => 
   useEffect(() => {
     if (isOpen) {
       setError('');
-      setFormData({ title: '', description: '', priority: 'P2', status: 'TODO', assignedToId: '' });
+      setFormData({ title: '', description: '', priority: 'P2', status: 'TODO', assignedToId: '', tags: '' });
       fetch('/api/users', {
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -76,15 +76,22 @@ const NewTicketModal = ({ isOpen, onClose, onSuccess }: NewTicketModalProps) => 
         },
         body: JSON.stringify(body),
       });
-      const data = await res.json();
+
       if (res.ok) {
         onSuccess();
         onClose();
-      } else {
-        setError(data.error || 'Failed to create ticket');
+        return;
       }
-    } catch (_) {
-      setError('Connection error. Is the backend running?');
+
+      // Try to parse JSON error
+      try {
+        const data = await res.json();
+        setError(data.error || `Server error (${res.status})`);
+      } catch {
+        setError(`Connection error (${res.status}): ${res.statusText}`);
+      }
+    } catch (err: any) {
+      setError(`Network error: ${err.message || 'Check your connection'}`);
     } finally {
       setLoading(false);
     }
