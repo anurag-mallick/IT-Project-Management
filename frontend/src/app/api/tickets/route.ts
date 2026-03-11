@@ -63,7 +63,8 @@ export const POST = withAuth(async (req: NextRequest, user: any) => {
     */
 
     return NextResponse.json(autoUpdatedTicket);
-  } catch (err) {
-    return NextResponse.json({ error: 'Failed to create ticket' }, { status: 400 });
+  } catch (err: any) {
+    console.error('Ticket Create Error:', err);
+    return NextResponse.json({ error: `Failed to create ticket: ${err.message || 'Unknown error'}` }, { status: 500 });
   }
 });
