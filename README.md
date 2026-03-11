@@ -16,29 +16,35 @@ A modern, full-stack **IT helpdesk and project management system** built for int
 | 🔐 **JWT Authentication** | Secure login; all internal routes are protected                                  |
 | 🎯 **Priority Control**   | Any logged-in user can update ticket priority (LOW → URGENT) inline              |
 | 📋 **Assignment**         | Assign tickets to staff members from the ticket detail panel                     |
-| 💬 **Comments**           | Thread-based comments on every ticket with Ctrl+Enter to send                    |
+| 💬 **Comments**           | Thread-based comments with Markdown and Rich Text support                        |
 | 🌐 **Public Submit Form** | Anonymous external ticket submission (no login required)                         |
 | 🏷️ **Status Workflow**    | TODO → IN_PROGRESS → AWAITING_USER → RESOLVED → CLOSED                           |
+| ⏰ **SLA Management**     | Automated SLA breach time calculations based on ticket Priority                  |
+| 🤖 **Automations**        | Rules engine to automatically assign and escalate tickets based on triggers      |
+| 📎 **Sub-tasks & Tags**   | Break down tickets with Checklists and categorize them with customizable Tags    |
+| 📅 **Calendar View**      | Visualize tickets by Due Date and time spent in a full Calendar view             |
+| 📧 **Email Notifications**| Automated email alerts for ticket creations, assignments, and status updates     |
 
 ---
 
 ## 🏗️ Tech Stack
 
-### Backend (`backend-traditional/`)
+### Backend (Next.js API Routes + Prisma)
 
-- **Node.js + Express** — REST API
-- **Prisma ORM** — type-safe database access
-- **SQLite** — lightweight embedded database
+- **Next.js 15 (App Router)** — API Routes for REST endpoints
+- **Prisma ORM** — type-safe database access with PostgreSQL (Supabase)
+- **Supabase** — hosted PostgreSQL database & Storage for attachments
+- **Resend** — transactional email notifications
 - **JWT** — stateless authentication
 - **bcryptjs** — password hashing
-- **Socket.IO** — real-time eventing foundation
-- **Helmet + CORS** — security headers
 
 ### Frontend (`frontend/`)
 
 - **Next.js 15** (App Router)
 - **React 18**
-- **Tailwind CSS v4**
+- **Tailwind CSS v4** + `@tailwindcss/typography`
+- **react-big-calendar** — calendar view
+- **react-markdown** — rich text rendering
 - **Framer Motion** — animations
 - **lucide-react** — icons
 
@@ -58,30 +64,12 @@ git clone https://github.com/anurag-mallick/IT-Project-Mangement.git
 cd "IT-Project-Mangement"
 ```
 
-### 2 · Start the Backend
+### 2 · Start the Application
 
 ```bash
-cd backend-traditional
 npm install
 npx prisma generate
 npx prisma db push
-node prisma/seed.js        # seeds the default admin user
-npm start
-# → Listening on http://localhost:4000
-```
-
-**Backend `.env`**
-
-```
-PORT=4000
-JWT_SECRET=your_super_secret_key_here
-```
-
-### 3 · Start the Frontend
-
-```bash
-cd frontend
-npm install
 npm run dev
 # → Available on http://localhost:3000
 ```
