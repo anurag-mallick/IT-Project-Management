@@ -48,7 +48,8 @@ export const POST = withAuth(async (req: NextRequest, user: any) => {
     // Run Automations
     const autoUpdatedTicket = await runAutomations('ON_TICKET_CREATED', ticket);
 
-    // Send email to assignee if assigned
+    // Send email to assignee if assigned (DISABLED FOR NOW)
+    /*
     if (autoUpdatedTicket.assignedToId) {
       const assigneeUser = await prisma.user.findUnique({ where: { id: autoUpdatedTicket.assignedToId } });
       if (assigneeUser && assigneeUser.username) {
@@ -59,6 +60,7 @@ export const POST = withAuth(async (req: NextRequest, user: any) => {
         });
       }
     }
+    */
 
     return NextResponse.json(autoUpdatedTicket);
   } catch (err) {

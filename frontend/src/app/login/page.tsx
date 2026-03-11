@@ -22,12 +22,12 @@ const LoginPage = () => {
       if (sbError) {
         setError(sbError.message);
       } else if (data.session && data.user) {
-        login(data.session.access_token, data.user);
+        login(data.session.access_token, data.user as any); // Type assertion for user
       } else {
         setError('Login failed no session');
       }
-    } catch (err) {
-      setError('Connection error. Is the internet connected?');
+    } catch (err: any) {
+      setError(err?.message || 'Connection error. Is the internet connected?');
     }
   };
 

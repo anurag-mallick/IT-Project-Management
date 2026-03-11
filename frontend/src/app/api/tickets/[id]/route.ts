@@ -86,7 +86,8 @@ export const PATCH = withAuth(async (req: NextRequest, user: any, { params }: { 
     // Run Automations
     const autoUpdatedTicket = await runAutomations('ON_TICKET_UPDATED', updatedTicket as any);
 
-    // Send assignment email if assignee changed
+    // Send assignment email if assignee changed (DISABLED FOR NOW)
+    /*
     if (data.assignedToId && data.assignedToId !== currentTicket.assignedToId) {
       const assigneeUser = await prisma.user.findUnique({ where: { id: data.assignedToId } });
       if (assigneeUser && assigneeUser.username) {
@@ -107,6 +108,7 @@ export const PATCH = withAuth(async (req: NextRequest, user: any, { params }: { 
          });
        }
     }
+    */
 
     return NextResponse.json(autoUpdatedTicket);
   } catch (err) {
