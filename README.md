@@ -45,6 +45,7 @@ Reduce operational overhead with the Horizon Automation Engine.
 *   **Trigger-Action Logic**: Automatically take actions when tickets are created or updated.
 *   **Smart Triage**: Route critical P0 tickets to senior administrators or assign hardware tickets to the inventory team based on tags.
 *   **Auto-Escalation**: Ensure no ticket sits idle by automatically bumping priority if a response time is exceeded.
+*   **Self-Service Security**: Users can now securely update their own passwords directly through the **Security Settings** panel.
 
 ### 🔍 Unified Search
 A powerful, instant-discovery engine built into the top navigation.
@@ -128,10 +129,10 @@ npm run dev
 
 ## 🔐 Access Control
 
-| Username | Role | Permission Level |
+| Username | Password | Role |
 | :--- | :--- | :--- |
-| `admin@it-management.com` | **ADMIN** | Full access to users, settings, and all tickets. |
-| (Any created staff user) | **STAFF** | Access to Dashboard and Assets; no access to settings. |
+| `admin@it-management.com` | `Password1!` | **ADMIN** |
+| (Any created staff user) | (Set by Admin) | **STAFF** |
 
 ---
 
@@ -157,7 +158,14 @@ npm run dev
 
 ---
 
-## 📝 License
+---
+
+## 👨‍💻 Developed By
+
+**Anurag Mallick**  
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/anurag-mallick)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/anuragmallick901/)
+
 Distributed under the MIT License. See `LICENSE` for more information.
 
-*Generated with ❤️ by the Horizon IT Team*
+*Built with ❤️ for the Horizon IT Ecosystem*
