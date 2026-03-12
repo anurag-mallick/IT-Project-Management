@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { withAuth } from "@/lib/auth";
@@ -54,3 +55,4 @@ async function createUserHandler(req: NextRequest, user: any) {
 
 export const GET = withAuth(getUsersHandler);
 export const POST = withAuth(createUserHandler);
+

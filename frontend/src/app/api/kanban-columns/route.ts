@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { withAuth } from '@/lib/auth';
@@ -64,3 +65,4 @@ export const PUT = withAuth(async (req: NextRequest, user: any) => {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 });
+

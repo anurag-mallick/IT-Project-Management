@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { withAuth } from '@/lib/auth';
@@ -39,3 +40,4 @@ export const POST = withAuth(async (req: NextRequest, user: any) => {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 });
+
