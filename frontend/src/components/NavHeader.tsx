@@ -14,7 +14,7 @@ const NavHeader = ({ activeView, setActiveView, searchQuery, onSearchChange }: B
   return (
     <header className="h-14 border-b border-white/5 flex items-center justify-between px-6 bg-zinc-950/20 backdrop-blur-sm sticky top-0 z-40 gap-4">
       {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 text-sm flex-shrink-0">
+      <div className="flex items-center gap-2 text-sm shrink-0">
         <span className="text-white/40 hover:text-white cursor-pointer transition-colors">Spaces</span>
         <ChevronRight size={14} className="text-white/20" />
         <span className="text-white/40 hover:text-white cursor-pointer transition-colors">IT Operations</span>
@@ -28,7 +28,7 @@ const NavHeader = ({ activeView, setActiveView, searchQuery, onSearchChange }: B
 
       {/* Global Search */}
       {onSearchChange !== undefined && (
-        <div className="flex-grow max-w-md mx-4">
+        <div className="grow max-w-md mx-4">
           <div className="relative group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-blue-500 transition-colors" />
             <input 
@@ -43,7 +43,7 @@ const NavHeader = ({ activeView, setActiveView, searchQuery, onSearchChange }: B
       )}
 
       {/* View Switcher & Actions */}
-      <div className="flex items-center gap-6 flex-shrink-0">
+      <div className="flex items-center gap-6 shrink-0">
         <div className="flex items-center bg-white/5 p-1 rounded-md border border-white/5">
           <button 
             onClick={() => setActiveView('kanban')}
