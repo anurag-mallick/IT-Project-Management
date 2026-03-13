@@ -25,7 +25,7 @@ export const GET = withAuth(async (req: NextRequest, user: any) => {
 export const POST = withAuth(async (req: NextRequest, user: any) => {
   try {
     const body = await req.json();
-    const { title, description, priority, status, assignedToId, tags } = body;
+    const { title, description, priority, status, assignedToId, assetId, tags } = body;
     
     if (!title || !description) {
       return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
@@ -39,8 +39,8 @@ export const POST = withAuth(async (req: NextRequest, user: any) => {
         description,
         priority: priority || 'P2',
         status: status || 'TODO',
-        assignedToId: assignedToId ? parseInt(assignedToId) : undefined,
-        assetId: assetId ? parseInt(assetId) : undefined,
+        assignedToId: assignedToId ? parseInt(assignedToId.toString()) : undefined,
+        assetId: assetId ? parseInt(assetId.toString()) : undefined,
         tags: tags || [],
         slaBreachAt: slaBreachAt || undefined
       },
@@ -50,28 +50,19 @@ export const POST = withAuth(async (req: NextRequest, user: any) => {
     // Run Automations
     const autoUpdatedTicket = await runAutomations('ON_TICKET_CREATED', ticket);
 
-    // Send email to assignee if assigned (DISABLED FOR NOW)
-    /*
-    if (autoUpdatedTicket.assignedToId) {
-      const assigneeUser = await prisma.user.findUnique({ where: { id: autoUpdatedTicket.assignedToId } });
-      if (assigneeUser && assigneeUser.username) {
-        await sendTicketEmail({
-          type: 'CREATED',
-          ticket: autoUpdatedTicket as any,
-          recipient: { email: assigneeUser.username, name: assigneeUser.name || 'User' }
-        });
-      }
-    }
-    */
-
     return NextResponse.json(autoUpdatedTicket);
   } catch (err: any) {
-    console.error('Ticket Create Error:', err);
-    const isAuthError = err.message?.includes('Authentication failed');
+    console.error('Ticket Create Error Details:', {
+      message: err.message,
+      stack: err.stack,
+      code: err.code
+    });
+    
+    const isAuthError = err.message?.includes('Authentication failed') || err.message?.includes('password authentication failed');
     return NextResponse.json({ 
       error: isAuthError 
         ? 'Database Authentication Failed. Please check your Supabase credentials in Vercel.' 
-        : 'Failed to create ticket. Please check the server logs.' 
+        : `Failed to create ticket: ${err.message || 'Unknown error'}`
     }, { status: 500 });
   }
 });
