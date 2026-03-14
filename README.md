@@ -2,7 +2,7 @@
 
 **Horizon IT** is a high-performance, enterprise-grade IT Management and Helpdesk solution designed for velocity, transparency, and advanced operations. It combines ticket management, asset tracking, and process automation into a unified, high-performance web experience.
 
-🌍 **Live Application:** [it-project-mangement.vercel.app](https://it-project-mangement.vercel.app)
+🌍 **Live Application:** [it-project-management.vercel.app](https://it-project-management.vercel.app)
 
 ---
 
@@ -103,8 +103,8 @@ The interface follows a **Premium Dark** aesthetic, utilizing modern design tren
 ### 2. Deployment & Local Setup
 Clone the repository:
 ```bash
-git clone https://github.com/anurag-mallick/IT-Project-Mangement.git
-cd IT-Project-Mangement/frontend
+git clone https://github.com/anurag-mallick/IT-Project-Management.git
+cd IT-Project-Management/app
 ```
 
 Configure your `.env.local`:
@@ -129,10 +129,7 @@ npm run dev
 
 ## 🔐 Access Control
 
-| Username | Password | Role |
-| :--- | :--- | :--- |
-| `admin@it-management.com` | `Password1!` | **ADMIN** |
-| (Any created staff user) | (Set by Admin) | **STAFF** |
+Contact the admin to receive demo credentials.
 
 ---
 
