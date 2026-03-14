@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Asset, User } from "@/types";
+import AuthGuard from "@/components/AuthGuard";
 
 export default function AssetsPage() {
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -117,8 +118,9 @@ export default function AssetsPage() {
   );
 
   return (
-    <div className="flex flex-col h-screen bg-slate-900 text-slate-200">
-      <NavHeader activeView="kanban" setActiveView={() => {}} searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+    <AuthGuard>
+      <div className="flex flex-col h-screen bg-slate-900 text-slate-200">
+        <NavHeader activeView="kanban" setActiveView={() => {}} searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       
       <main className="flex-grow p-8 max-w-7xl mx-auto w-full overflow-y-auto">
         <div className="flex items-center justify-between mb-8">
@@ -438,5 +440,6 @@ export default function AssetsPage() {
         </div>
       )}
     </div>
+    </AuthGuard>
   );
 }

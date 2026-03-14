@@ -87,7 +87,7 @@ export interface Ticket {
   checklists?: ChecklistItem[];
   assetId?: number | null;
   asset?: Asset;
-  timeSpent?: number;
+  authorName?: string | null;
   createdAt: string | Date;
   updatedAt: string | Date;
   dueDate?: string | Date | null;

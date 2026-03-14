@@ -55,6 +55,32 @@ const ListBoard = ({ searchQuery = "" }: ListBoardProps) => {
 
   useEffect(() => { fetchTickets(pagination.page); }, [pagination.page]);
 
+  const parentRef = React.useRef<HTMLDivElement>(null);
+
+  const filteredTickets = tickets.filter((t) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    // Safety check for all fields used in search
+    const title = t.title || "";
+    const description = t.description || "";
+    const requester = t.requesterName || t.authorName || "";
+    const id = t.id?.toString() || "";
+
+    return (
+      title.toLowerCase().includes(q) ||
+      description.toLowerCase().includes(q) ||
+      requester.toLowerCase().includes(q) ||
+      id.includes(q)
+    );
+  });
+
+  const rowVirtualizer = useVirtualizer({
+    count: filteredTickets.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 64,
+    overscan: 5,
+  });
+
   if (loading) return (
     <div className="flex-1 flex items-center justify-center py-24">
       <Loader2 className="w-7 h-7 text-indigo-500 animate-spin" />
@@ -68,26 +94,6 @@ const ListBoard = ({ searchQuery = "" }: ListBoardProps) => {
       <button onClick={() => fetchTickets(1)} className="ml-auto text-indigo-400 hover:underline text-xs font-bold">Retry</button>
     </div>
   );
-
-  const filteredTickets = tickets.filter((t) => {
-    if (!searchQuery) return true;
-    const q = searchQuery.toLowerCase();
-    return (
-      t.title.toLowerCase().includes(q) ||
-      t.description.toLowerCase().includes(q) ||
-      t.requesterName?.toLowerCase().includes(q) ||
-      t.id.toString().includes(q)
-    );
-  });
-
-  const parentRef = React.useRef<HTMLDivElement>(null);
-
-  const rowVirtualizer = useVirtualizer({
-    count: filteredTickets.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 64,
-    overscan: 5,
-  });
 
   return (
     <>
@@ -148,7 +154,7 @@ const ListBoard = ({ searchQuery = "" }: ListBoardProps) => {
                       </span>
                     </div>
                     <div className="w-40 px-6 py-4 h-full flex items-center text-xs text-white/40 flex-shrink-0">
-                      <span className="truncate">{ticket.requesterName || '—'}</span>
+                      <span className="truncate">{ticket.requesterName || ticket.authorName || '—'}</span>
                     </div>
                     <div className="w-32 px-6 py-4 h-full flex items-center text-xs text-white/30 flex-shrink-0">
                       {new Date(ticket.createdAt).toLocaleDateString()}

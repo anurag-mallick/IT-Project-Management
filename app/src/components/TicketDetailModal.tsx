@@ -238,10 +238,13 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate }: TicketDetailMo
             <div className="flex items-center gap-3 text-xs text-white/40 mt-1">
               <span>Ticket #{ticket.id}</span>
               {ticket.slaBreachAt && (
-                <span className={`px-2 py-0.5 rounded font-medium ${new Date(ticket.slaBreachAt) < new Date() ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'}`}>
+                <span className={`px-2 py-0.5 rounded font-medium ${new Date(ticket.slaBreachAt) < new Date() ? 'bg-red-500/20 text-red-100' : 'bg-green-500/20 text-green-400'}`}>
                   SLA: {new Date(ticket.slaBreachAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
                 </span>
               )}
+              <span className="text-blue-400 font-medium">
+                {ticket.requesterName || ticket.authorName || 'Internal'}
+              </span>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors"><X className="w-5 h-5"/></button>
