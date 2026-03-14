@@ -23,7 +23,9 @@ Next.js 15 projects are optimized for Vercel.
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
    - `RESEND_API_KEY`
-4. **Build Settings**: Vercel should automatically detect the App Router.
+4. **Build Settings**: 
+   - Vercel should automatically detect the App Router.
+   - **IMPORTANT**: If your project was previously looking for a `frontend` directory, go to **Settings > General** and update the **Root Directory** from `frontend` to `app`.
 
 ---
 
