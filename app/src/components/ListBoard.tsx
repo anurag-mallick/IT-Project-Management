@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { ChevronRight, Loader2, AlertCircle, List, ArrowUpDown } from 'lucide-react';
+import { ChevronRight, Loader2, AlertCircle, List, ArrowUpDown, Trash2, CheckCircle, AlertOctagon, User as UserIcon } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Ticket } from '@/types';
 import TicketDetailModal from '@/components/TicketDetailModal';
@@ -35,9 +35,12 @@ const ListBoard = ({ searchQuery = "", users, assets }: ListBoardProps) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 });
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [selectedTicketIds, setSelectedTicketIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [savingBulk, setSavingBulk] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { supabaseUser } = useAuth();
+  const { user: authUser } = useAuth();
+  const isAdmin = authUser?.role === 'ADMIN';
 
   const fetchTickets = async (page = 1) => {
     setLoading(true);
@@ -48,6 +51,7 @@ const ListBoard = ({ searchQuery = "", users, assets }: ListBoardProps) => {
       const data = await res.json();
       setTickets(data.tickets);
       setPagination(data.pagination);
+      setSelectedTicketIds(new Set()); // clear selection on page change
     } catch (err: any) {
       setError(err.message || 'Connection error');
     } finally {
@@ -56,6 +60,61 @@ const ListBoard = ({ searchQuery = "", users, assets }: ListBoardProps) => {
   };
 
   useEffect(() => { fetchTickets(pagination.page); }, [pagination.page]);
+
+  const toggleSelectAll = () => {
+    if (selectedTicketIds.size === filteredTickets.length) {
+      setSelectedTicketIds(new Set());
+    } else {
+      setSelectedTicketIds(new Set(filteredTickets.map(t => t.id)));
+    }
+  };
+
+  const toggleSelectTicket = (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newSelected = new Set(selectedTicketIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedTicketIds(newSelected);
+  };
+
+  const handleBulkAction = async (actionType: 'status' | 'priority' | 'assignee' | 'delete', value?: string) => {
+    if (selectedTicketIds.size === 0) return;
+    if (actionType === 'delete' && !window.confirm(`Are you sure you want to delete ${selectedTicketIds.size} tickets?`)) return;
+
+    setSavingBulk(true);
+    try {
+      const data: any = {};
+      if (actionType === 'status') data.status = value;
+      if (actionType === 'priority') data.priority = value;
+      if (actionType === 'assignee') data.assignedToId = value;
+      if (actionType === 'delete') data.delete = true;
+
+      const res = await fetch('/api/tickets/bulk', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ids: Array.from(selectedTicketIds),
+          data
+        })
+      });
+
+      if (res.ok) {
+        setSelectedTicketIds(new Set());
+        fetchTickets(pagination.page);
+      } else {
+        const err = await res.json();
+        alert(`Bulk action failed: ${err.error || 'Unknown error'}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('An error occurred during bulk action.');
+    } finally {
+      setSavingBulk(false);
+    }
+  };
 
   const parentRef = React.useRef<HTMLDivElement>(null);
 
@@ -99,10 +158,18 @@ const ListBoard = ({ searchQuery = "", users, assets }: ListBoardProps) => {
 
   return (
     <>
-      <div className="glass-card overflow-hidden flex flex-col h-[700px]">
+      <div className="glass-card overflow-hidden flex flex-col h-[700px] relative">
         {/* Table Header */}
-        <div className="flex border-b border-white/5 bg-white/5 text-[10px] uppercase tracking-widest text-white/40 font-bold">
-          <div className="w-16 px-6 py-4 flex-shrink-0">ID</div>
+        <div className="flex border-b border-white/5 bg-white/5 text-[10px] uppercase tracking-widest text-white/40 font-bold items-center">
+          <div className="w-12 px-4 py-4 flex-shrink-0 flex items-center justify-center">
+            <input 
+              type="checkbox" 
+              checked={selectedTicketIds.size === filteredTickets.length && filteredTickets.length > 0}
+              onChange={toggleSelectAll}
+              className="rounded border-white/10 bg-black/20 text-indigo-500 focus:ring-0 focus:ring-offset-0 cursor-pointer w-4 h-4"
+            />
+          </div>
+          <div className="w-16 px-4 py-4 flex-shrink-0">ID</div>
           <div className="flex-1 px-6 py-4 min-w-0">Title</div>
           <div className="w-32 px-6 py-4 flex-shrink-0">Status</div>
           <div className="w-32 px-6 py-4 flex-shrink-0">Priority</div>
@@ -135,11 +202,21 @@ const ListBoard = ({ searchQuery = "", users, assets }: ListBoardProps) => {
                     className="absolute top-0 left-0 w-full flex items-center hover:bg-white/5 transition-colors group cursor-pointer border-b border-white/5"
                     style={{
                       height: `${virtualRow.size}px`,
+                      top: 0,
+                      left: 0,
                       transform: `translateY(${virtualRow.start}px)`,
                     }}
                     onClick={() => setSelectedTicket(ticket)}
                   >
-                    <div className="w-16 px-6 py-4 h-full flex items-center font-mono text-xs text-white/30 flex-shrink-0">
+                    <div className="w-12 px-4 py-4 h-full flex items-center justify-center flex-shrink-0" onClick={e => e.stopPropagation()}>
+                       <input 
+                        type="checkbox" 
+                        checked={selectedTicketIds.has(ticket.id)}
+                        onChange={(e) => toggleSelectTicket(ticket.id, e as any)}
+                        className="rounded border-white/10 bg-black/20 text-indigo-500 focus:ring-0 focus:ring-offset-0 cursor-pointer w-4 h-4"
+                      />
+                    </div>
+                    <div className="w-16 px-4 py-4 h-full flex items-center font-mono text-xs text-white/30 flex-shrink-0">
                       #{ticket.id}
                     </div>
                     <div className="flex-1 px-6 py-4 h-full flex items-center text-sm font-medium overflow-hidden">
@@ -170,6 +247,65 @@ const ListBoard = ({ searchQuery = "", users, assets }: ListBoardProps) => {
             </div>
           )}
         </div>
+
+        {/* Floating Action Bar */}
+        {selectedTicketIds.size > 0 && (
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-zinc-800 border border-white/10 shadow-2xl rounded-2xl px-4 py-3 flex items-center gap-4 animate-in slide-in-from-bottom-5 z-20">
+            <span className="text-sm font-bold text-white px-2">
+              {selectedTicketIds.size} selected
+            </span>
+            <div className="h-4 w-px bg-white/10"></div>
+            
+            <div className="flex items-center gap-2">
+               <select 
+                  className="bg-zinc-900 border border-white/10 rounded-lg text-xs px-2 py-1.5 focus:outline-none focus:border-indigo-500 text-white/80"
+                  onChange={(e) => e.target.value && handleBulkAction('status', e.target.value)}
+                  value=""
+               >
+                 <option value="" disabled>Set Status...</option>
+                 <option value="TODO">TODO</option>
+                 <option value="IN_PROGRESS">IN PROGRESS</option>
+                 <option value="AWAITING_USER">AWAITING USER</option>
+                 <option value="RESOLVED">RESOLVED</option>
+                 <option value="CLOSED">CLOSED</option>
+               </select>
+
+               <select 
+                  className="bg-zinc-900 border border-white/10 rounded-lg text-xs px-2 py-1.5 focus:outline-none focus:border-indigo-500 text-white/80"
+                  onChange={(e) => e.target.value && handleBulkAction('priority', e.target.value)}
+                  value=""
+               >
+                 <option value="" disabled>Set Priority...</option>
+                 <option value="P0">P0 - Critical</option>
+                 <option value="P1">P1 - High</option>
+                 <option value="P2">P2 - Normal</option>
+                 <option value="P3">P3 - Low</option>
+               </select>
+
+               <select 
+                  className="bg-zinc-900 border border-white/10 rounded-lg text-xs px-2 py-1.5 focus:outline-none focus:border-indigo-500 text-white/80"
+                  onChange={(e) => e.target.value && handleBulkAction('assignee', e.target.value)}
+                  value=""
+               >
+                 <option value="" disabled>Assign To...</option>
+                 <option value="">Unassigned</option>
+                 {users?.map(u => (
+                   <option key={u.id} value={u.id}>{u.name || u.username}</option>
+                 ))}
+               </select>
+
+               {isAdmin && (
+                 <button 
+                  onClick={() => handleBulkAction('delete')}
+                  className="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ml-2 flex items-center gap-1"
+                 >
+                   <Trash2 size={12} /> Delete
+                 </button>
+               )}
+            </div>
+            {savingBulk && <Loader2 className="w-4 h-4 animate-spin text-indigo-500 ml-2" />}
+          </div>
+        )}
       </div>
 
       <div className="flex items-center justify-between mt-6 px-2">

@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Columns, FolderTree, Shield, Settings as SettingsIcon } from 'lucide-react';
+import { LayoutDashboard, Users, Columns, FolderTree, Shield, Settings as SettingsIcon, FilePlus } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 const SETTINGS_NAVIGATION = [
@@ -10,6 +10,7 @@ const SETTINGS_NAVIGATION = [
   { name: 'Security', href: '/settings/security', icon: Shield },
   { name: 'Spaces & Folders', href: '/settings/spaces', icon: FolderTree },
   { name: 'Board Stages', href: '/settings/board-stages', icon: Columns },
+  { name: 'Ticket Templates', href: '/settings/templates', icon: FilePlus, adminOnly: true },
   { name: 'User Management', href: '/settings/users', icon: Users, adminOnly: true },
 ];
 

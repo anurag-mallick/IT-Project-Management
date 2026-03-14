@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Ticket, Comment as TicketComment, User, Priority, ChecklistItem } from '../types';
-import { X, Send, User as UserIcon, AlertCircle, CheckCircle, Loader2, Server, Cpu } from 'lucide-react';
+import { X, Send, User as UserIcon, AlertCircle, CheckCircle, Loader2, Server, Cpu, Clock, Zap } from 'lucide-react';
 import { uploadAttachment } from '@/lib/storage';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -46,6 +46,16 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate, users, assets: i
   const [checklists, setChecklists] = useState<ChecklistItem[]>([]);
   const [newChecklistTitle, setNewChecklistTitle] = useState('');
   const [localAsset, setLocalAsset] = useState<string>('');
+  
+  // Tabs & Timeline
+  const [activeTab, setActiveTab] = useState<'details' | 'timeline'>('details');
+  const [activityLogs, setActivityLogs] = useState<any[]>([]);
+
+  // Mentions
+  const [showMentions, setShowMentions] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState('');
+  const [mentionIndex, setMentionIndex] = useState(-1); // To track which @ we are replacing
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   const fetchComments = useCallback(async () => {
     if (!ticket) return;
@@ -85,6 +95,7 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate, users, assets: i
       setLocalAsset(ticket.assetId ? String(ticket.assetId) : '');
       setChecklists(ticket.checklists || []);
       fetchComments();
+      fetchActivityLogs();
       if (!users) fetchStaff();
       else setStaff(users);
       if (!initialAssets) fetchAssets();
@@ -222,6 +233,36 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate, users, assets: i
     }
   };
 
+  const handleCommentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const val = e.target.value;
+    setNewComment(val);
+
+    // Simple mention detection: last chunk of text after an @ sign
+    const cursor = e.target.selectionStart;
+    const textBeforeCursor = val.slice(0, cursor);
+    const match = textBeforeCursor.match(/@([a-zA-Z0-9_\-\.]*)$/);
+
+    if (match) {
+        setShowMentions(true);
+        setMentionQuery(match[1]);
+        setMentionIndex(match.index || -1); // Position where '@' starts
+    } else {
+        setShowMentions(false);
+    }
+  };
+
+  const insertMention = (username: string) => {
+      if (mentionIndex === -1) return;
+      const beforeMention = newComment.slice(0, mentionIndex);
+      const afterCursor = newComment.slice(textareaRef.current?.selectionStart || newComment.length);
+      const updatedComment = `${beforeMention}@${username} ${afterCursor}`;
+      setNewComment(updatedComment);
+      setShowMentions(false);
+      textareaRef.current?.focus();
+  };
+
+  const filteredStaff = staff.filter(u => u.username.toLowerCase().includes(mentionQuery.toLowerCase()) || (u.name && u.name.toLowerCase().includes(mentionQuery.toLowerCase())));
+
   if (!isOpen || !ticket) return null;
 
   return (
@@ -253,115 +294,208 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate, users, assets: i
           </div>
           <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors"><X className="w-5 h-5"/></button>
         </div>
+
+        {/* Tabs */}
+        <div className="flex px-6 border-b border-white/10">
+          <button 
+            onClick={() => setActiveTab('details')}
+            className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'details' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-white/40 hover:text-white/80'}`}
+          >
+            Details
+          </button>
+          <button 
+            onClick={() => setActiveTab('timeline')}
+            className={`px-4 py-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'timeline' ? 'border-indigo-500 text-indigo-400' : 'border-transparent text-white/40 hover:text-white/80'}`}
+          >
+            Timeline
+          </button>
+        </div>
+
         <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
-          <div className="space-y-4">
-            <h3 className="text-xs uppercase tracking-widest text-white/40 font-bold">Description</h3>
-            <div className="text-sm text-white/80 prose prose-invert prose-indigo max-w-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{ticket.description}</ReactMarkdown>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-6 p-4 bg-white/5 rounded-xl border border-white/5">
-            <div className="space-y-2">
-              <label className="text-xs text-white/40 font-bold">Status</label>
-              <select value={localStatus} onChange={e => setLocalStatus(e.target.value)} className="w-full bg-zinc-800 border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 text-white">
-                {STATUS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt.replace('_', ' ')}</option>)}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs text-white/40 font-bold">Priority</label>
-              <select value={localPriority} onChange={e => setLocalPriority(e.target.value as Priority)} className="w-full bg-zinc-800 border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 text-white">
-                {PRIORITY_OPTIONS.map(opt => <option key={opt} value={opt}>{PRIORITY_LABELS[opt]}</option>)}
-              </select>
-            </div>
-            <div className="space-y-2 col-span-2">
-              <label className="text-xs text-white/40 font-bold">Assignee</label>
-              <select value={localAssignee} onChange={e => setLocalAssignee(e.target.value)} className="w-full bg-zinc-800 border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 text-white">
-                <option value="">Unassigned</option>
-                {staff.map(u => <option key={u.id} value={u.id}>{u.name || u.username}</option>)}
-              </select>
-            </div>
-            
-            <div className="space-y-2 col-span-2">
-              <label className="text-xs text-white/40 font-bold">Tags (comma-separated)</label>
-              <input type="text" value={localTags} onChange={e => setLocalTags(e.target.value)} placeholder="e.g. frontend, bug, urgent" className="w-full bg-zinc-800 border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 text-white" />
-            </div>
-
-            <div className="space-y-2 col-span-2">
-              <label className="text-xs text-white/40 font-bold">Due Date</label>
-              <input type="date" value={localDueDate} onChange={e => setLocalDueDate(e.target.value)} className="w-full bg-zinc-800 border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 text-white [color-scheme:dark]" />
-            </div>
-
-            <div className="space-y-3 col-span-2 pt-4 border-t border-white/5 mt-2 bg-indigo-950/20 p-4 -mx-4 border-y border-indigo-500/10">
-              <h4 className="text-xs text-indigo-400 font-bold uppercase tracking-widest flex items-center gap-2">
-                <Server className="w-4 h-4" /> Linked IT Asset
-              </h4>
-              <select value={localAsset} onChange={e => setLocalAsset(e.target.value)} className="w-full bg-indigo-950/50 border border-indigo-500/20 text-indigo-200 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500">
-                <option value="">No Asset Linked</option>
-                {assets.map(asset => <option key={asset.id} value={asset.id}>{asset.name} ({asset.type})</option>)}
-              </select>
-            </div>
-
-            <div className="space-y-3 col-span-2 pt-4 border-t border-white/5 mt-2">
-              <h4 className="text-xs text-white/40 font-bold uppercase tracking-widest">Checklist</h4>
-              <div className="space-y-2">
-                {checklists.map(item => (
-                  <div key={item.id} className="flex items-center gap-3 bg-zinc-800/50 p-2 rounded-lg group">
-                    <input type="checkbox" checked={item.isCompleted} onChange={(e) => toggleChecklist(item.id, e.target.checked)} className="rounded border-none/10 bg-zinc-700 text-indigo-500 w-4 h-4 cursor-pointer focus:ring-0" />
-                    <span className={`flex-1 text-sm ${item.isCompleted ? 'text-white/40 line-through' : 'text-white/80'}`}>{item.title}</span>
-                    <button onClick={() => deleteChecklist(item.id)} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 text-red-400 rounded transition-all"><X className="w-3 h-3" /></button>
-                  </div>
-                ))}
+          {activeTab === 'details' ? (
+            <>
+              <div className="space-y-4">
+                <h3 className="text-xs uppercase tracking-widest text-white/40 font-bold">Description</h3>
+                <div className="text-sm text-white/80 prose prose-invert prose-indigo max-w-none">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{ticket.description}</ReactMarkdown>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <input type="text" value={newChecklistTitle} onChange={e => setNewChecklistTitle(e.target.value)} onKeyDown={e => e.key === 'Enter' && addChecklistItem()} placeholder="Add item..." className="flex-1 bg-zinc-800 border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 text-white" />
-                <button onClick={addChecklistItem} disabled={!newChecklistTitle.trim()} className="bg-zinc-700 hover:bg-zinc-600 text-white px-3 py-2 rounded-md text-sm font-bold disabled:opacity-50 transition-colors">Add</button>
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-end gap-3 mt-4">
-            <label className="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer transition-colors flex items-center gap-2">
-              <input type="file" className="hidden" onChange={async (e) => {
-                if (e.target.files && e.target.files[0] && ticket) {
-                   setSaving(true);
-                   await uploadAttachment(ticket.id, e.target.files[0]);
-                   setSaving(false);
-                }
-              }} />
-              Attach File
-            </label>
-            {isAdmin && (
-              <button 
-                onClick={deleteTicket} 
-                className="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 px-4 py-2 rounded-lg text-sm font-bold transition-all mr-auto"
-              >
-                Delete Ticket
-              </button>
-            )}
-            <button onClick={saveTicket} disabled={saving} className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-bold disabled:opacity-50">
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
-          <hr className="border-white/10" />
-          <div className="space-y-4">
-            <h3 className="text-xs uppercase tracking-widest text-white/40 font-bold">Activity & Comments</h3>
-            <div className="space-y-4">
-              {comments.map(comment => (
-                <div key={comment.id} className="bg-white/5 p-4 rounded-xl border border-white/5">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-sm font-bold text-indigo-400">{comment.authorName || comment.author?.name || 'System'}</span>
-                    <span className="text-xs text-white/40">{new Date(comment.createdAt).toLocaleString()}</span>
+              <div className="grid grid-cols-2 gap-6 p-4 bg-white/5 rounded-xl border border-white/5">
+                <div className="space-y-2">
+                  <label className="text-xs text-white/40 font-bold">Status</label>
+                  <select value={localStatus} onChange={e => setLocalStatus(e.target.value)} className="w-full bg-zinc-800 border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 text-white">
+                    {STATUS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt.replace('_', ' ')}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs text-white/40 font-bold">Priority</label>
+                  <select value={localPriority} onChange={e => setLocalPriority(e.target.value as Priority)} className="w-full bg-zinc-800 border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 text-white">
+                    {PRIORITY_OPTIONS.map(opt => <option key={opt} value={opt}>{PRIORITY_LABELS[opt]}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-2 col-span-2">
+                  <label className="text-xs text-white/40 font-bold">Assignee</label>
+                  <select value={localAssignee} onChange={e => setLocalAssignee(e.target.value)} className="w-full bg-zinc-800 border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 text-white">
+                    <option value="">Unassigned</option>
+                    {staff.map(u => <option key={u.id} value={u.id}>{u.name || u.username}</option>)}
+                  </select>
+                </div>
+                
+                <div className="space-y-2 col-span-2">
+                  <label className="text-xs text-white/40 font-bold">Tags (comma-separated)</label>
+                  <input type="text" value={localTags} onChange={e => setLocalTags(e.target.value)} placeholder="e.g. frontend, bug, urgent" className="w-full bg-zinc-800 border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 text-white" />
+                </div>
+
+                <div className="space-y-2 col-span-2">
+                  <label className="text-xs text-white/40 font-bold">Due Date</label>
+                  <input type="date" value={localDueDate} onChange={e => setLocalDueDate(e.target.value)} className="w-full bg-zinc-800 border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 text-white [color-scheme:dark]" />
+                </div>
+
+                <div className="space-y-3 col-span-2 pt-4 border-t border-white/5 mt-2 bg-indigo-950/20 p-4 -mx-4 border-y border-indigo-500/10">
+                  <h4 className="text-xs text-indigo-400 font-bold uppercase tracking-widest flex items-center gap-2">
+                    <Server className="w-4 h-4" /> Linked IT Asset
+                  </h4>
+                  <select value={localAsset} onChange={e => setLocalAsset(e.target.value)} className="w-full bg-indigo-950/50 border border-indigo-500/20 text-indigo-200 rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500">
+                    <option value="">No Asset Linked</option>
+                    {assets.map(asset => <option key={asset.id} value={asset.id}>{asset.name} ({asset.type})</option>)}
+                  </select>
+                </div>
+
+                <div className="space-y-3 col-span-2 pt-4 border-t border-white/5 mt-2">
+                  <h4 className="text-xs text-white/40 font-bold uppercase tracking-widest">Checklist</h4>
+                  <div className="space-y-2">
+                    {checklists.map(item => (
+                      <div key={item.id} className="flex items-center gap-3 bg-zinc-800/50 p-2 rounded-lg group">
+                        <input type="checkbox" checked={item.isCompleted} onChange={(e) => toggleChecklist(item.id, e.target.checked)} className="rounded border-none/10 bg-zinc-700 text-indigo-500 w-4 h-4 cursor-pointer focus:ring-0" />
+                        <span className={`flex-1 text-sm ${item.isCompleted ? 'text-white/40 line-through' : 'text-white/80'}`}>{item.title}</span>
+                        <button onClick={() => deleteChecklist(item.id)} className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-500/20 text-red-400 rounded transition-all"><X className="w-3 h-3" /></button>
+                      </div>
+                    ))}
                   </div>
-                  <div className="text-sm text-white/80 prose prose-invert prose-p:leading-snug prose-a:text-indigo-400 prose-sm max-w-none">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{comment.content}</ReactMarkdown>
+                  <div className="flex gap-2">
+                    <input type="text" value={newChecklistTitle} onChange={e => setNewChecklistTitle(e.target.value)} onKeyDown={e => e.key === 'Enter' && addChecklistItem()} placeholder="Add item..." className="flex-1 bg-zinc-800 border-none rounded-md px-3 py-2 text-sm focus:ring-1 focus:ring-indigo-500 text-white" />
+                    <button onClick={addChecklistItem} disabled={!newChecklistTitle.trim()} className="bg-zinc-700 hover:bg-zinc-600 text-white px-3 py-2 rounded-md text-sm font-bold disabled:opacity-50 transition-colors">Add</button>
                   </div>
                 </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-4">
+                <label className="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-lg text-sm font-bold cursor-pointer transition-colors flex items-center gap-2">
+                  <input type="file" className="hidden" onChange={async (e) => {
+                    if (e.target.files && e.target.files[0] && ticket) {
+                       setSaving(true);
+                       await uploadAttachment(ticket.id, e.target.files[0]);
+                       setSaving(false);
+                    }
+                  }} />
+                  Attach File
+                </label>
+                {isAdmin && (
+                  <button 
+                    onClick={deleteTicket} 
+                    className="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 px-4 py-2 rounded-lg text-sm font-bold transition-all mr-auto"
+                  >
+                    Delete Ticket
+                  </button>
+                )}
+                <button onClick={saveTicket} disabled={saving} className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-bold disabled:opacity-50">
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+              <hr className="border-white/10" />
+              <div className="space-y-4">
+                <h3 className="text-xs uppercase tracking-widest text-white/40 font-bold">Activity & Comments</h3>
+                <div className="space-y-4">
+                  {comments.map(comment => (
+                    <div key={comment.id} className="bg-white/5 p-4 rounded-xl border border-white/5">
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-sm font-bold text-indigo-400">{comment.authorName || comment.author?.name || 'System'}</span>
+                        <span className="text-xs text-white/40">{new Date(comment.createdAt).toLocaleString()}</span>
+                      </div>
+                      <div className="text-sm text-white/80 prose prose-invert prose-p:leading-snug prose-a:text-indigo-400 prose-sm max-w-none">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{comment.content}</ReactMarkdown>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="space-y-6">
+              <h3 className="text-xs uppercase tracking-widest text-white/40 font-bold mb-4">Activity Timeline</h3>
+              <div className="relative border-l border-white/10 ml-3 space-y-6 pb-6">
+                {activityLogs.map((log) => {
+                  let Icon = Zap;
+                  let colorClass = 'text-indigo-400 bg-indigo-500/20';
+                  let message = '';
+
+                  switch (log.action) {
+                    case 'STATUS_CHANGE':
+                      Icon = CheckCircle;
+                      colorClass = 'text-green-400 bg-green-500/20';
+                      message = `changed status from ${log.oldValue?.replace('_', ' ') || 'none'} to ${log.newValue?.replace('_', ' ')}`;
+                      break;
+                    case 'PRIORITY_CHANGE':
+                      Icon = AlertCircle;
+                      colorClass = 'text-red-400 bg-red-500/20';
+                      message = `changed priority from ${log.oldValue || 'none'} to ${log.newValue}`;
+                      break;
+                    case 'ASSIGNMENT_CHANGE':
+                      Icon = UserIcon;
+                      colorClass = 'text-blue-400 bg-blue-500/20';
+                      message = `changed assignment from ${log.oldValue ? `User ${log.oldValue}` : 'Unassigned'} to ${log.newValue ? `User ${log.newValue}` : 'Unassigned'}`;
+                      break;
+                    default:
+                      message = `updated field ${log.field}`;
+                  }
+
+                  return (
+                    <div key={log.id} className="relative pl-6">
+                      <div className={`absolute -left-3.5 top-0 w-7 h-7 rounded-full flex items-center justify-center border border-zinc-900 ${colorClass}`}>
+                        <Icon size={12} />
+                      </div>
+                      <div className="bg-white/5 border border-white/5 rounded-lg p-3">
+                        <div className="flex justify-between items-start mb-1">
+                          <span className="text-sm font-bold text-white/80">{log.user?.name || log.user?.username || 'System'}</span>
+                          <span className="text-[10px] text-white/40">{new Date(log.createdAt).toLocaleString()}</span>
+                        </div>
+                        <p className="text-xs text-white/60">{message}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+                {activityLogs.length === 0 && (
+                  <div className="pl-6 text-sm text-white/40 italic">No recent activity recorded.</div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="p-4 bg-zinc-950 border-t border-white/10 relative">
+          
+          {/* Mention Dropdown */}
+          {showMentions && filteredStaff.length > 0 && (
+            <div className="absolute bottom-full mb-2 left-4 w-64 bg-zinc-800 border border-white/10 rounded-xl shadow-xl overflow-hidden max-h-48 overflow-y-auto">
+              {filteredStaff.map(u => (
+                <button
+                  key={u.id}
+                  onClick={() => insertMention(u.username)}
+                  className="w-full text-left px-4 py-2 hover:bg-white/5 text-sm transition-colors flex items-center justify-between"
+                >
+                  <span className="font-bold text-white/90">{u.name || u.username}</span>
+                  <span className="text-xs text-white/40">@{u.username}</span>
+                </button>
               ))}
             </div>
-          </div>
-        </div>
-        <div className="p-4 bg-zinc-950 border-t border-white/10">
+          )}
+
           <div className="flex gap-2">
-            <textarea value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Type a comment..." className="flex-1 bg-zinc-900 border border-white/10 rounded-xl p-3 text-sm focus:outline-none focus:border-indigo-500/50 resize-none h-12 text-white" />
+            <textarea 
+               ref={textareaRef}
+               value={newComment} 
+               onChange={handleCommentChange} 
+               placeholder="Type a comment... (use @ to mention)" 
+               className="flex-1 bg-zinc-900 border border-white/10 rounded-xl p-3 text-sm focus:outline-none focus:border-indigo-500/50 resize-none h-12 text-white" 
+            />
             <button onClick={postComment} disabled={loading || !newComment.trim()} className="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl disabled:opacity-50 flex items-center justify-center transition-colors">
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
             </button>

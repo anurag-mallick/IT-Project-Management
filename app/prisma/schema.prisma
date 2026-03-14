@@ -38,6 +38,7 @@ model User {
   comments     Comment[]
   attachments  Attachment[]
   activityLogs ActivityLog[]
+  savedViews   SavedView[] @relation("UserSavedViews")
   assets       Asset[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
@@ -109,6 +110,28 @@ model ActivityLog {
   oldValue  String?
   newValue  String?
   createdAt DateTime @default(now())
+}
+
+model SavedView {
+  id        Int      @id @default(autoincrement())
+  name      String
+  query     Json
+  user      User     @relation("UserSavedViews", fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TicketTemplate {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  status      TicketStatus  @default(TODO)
+  priority    TicketPriority @default(P2)
+  tags        String[]
+  checklists  Json?         
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Task {

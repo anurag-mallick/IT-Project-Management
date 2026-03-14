@@ -5,6 +5,7 @@ import { withAuth } from '@/lib/auth';
 import { calculateSlaBreachTime } from '@/lib/sla';
 import { runAutomations } from '@/lib/automations';
 import { TicketStatus, TicketPriority } from '@/generated/prisma';
+import { sendTicketEmail } from '@/lib/email';
 
 export const GET = withAuth(async (req: NextRequest) => {
   try {
@@ -72,6 +73,20 @@ export const POST = withAuth(async (req: NextRequest) => {
 
     // Run Automations
     const autoUpdatedTicket = await runAutomations('ON_TICKET_CREATED', ticket);
+
+    // Send email to admin for P0 tickets
+    if (validatedPriority === TicketPriority.P0) {
+      const adminUsers = await prisma.user.findMany({ where: { role: 'ADMIN' } });
+      for (const admin of adminUsers) {
+        if (admin.username) {
+          await sendTicketEmail({
+            type: 'CREATED',
+            ticket: autoUpdatedTicket as any,
+            recipient: { email: admin.username, name: admin.name || 'Admin' }
+          });
+        }
+      }
+    }
 
     return NextResponse.json(autoUpdatedTicket);
   } catch (err: any) {

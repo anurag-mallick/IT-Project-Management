@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from './supabase/server';
+import { prisma } from '@/lib/prisma';
 
 export async function getUser() {
   try {
@@ -19,6 +20,17 @@ export async function verifyUser() {
     return { user: null, error: 'Unauthorized' };
   }
   return { user, error: null };
+}
+
+export async function isAdmin() {
+  const user = await getUser();
+  if (!user || !user.email) return false;
+  
+  const dbUser = await prisma.user.findUnique({
+    where: { email: user.email }
+  });
+  
+  return dbUser?.role === 'ADMIN';
 }
 
 // Higher order function for API route protection

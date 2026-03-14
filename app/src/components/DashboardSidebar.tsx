@@ -9,21 +9,37 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+interface SavedView {
+  id: number;
+  name: string;
+  query: any;
+}
+
 interface SidebarProps {
   activeView: string;
   setActiveView: (view: 'kanban' | 'list' | 'reports' | 'calendar' | 'intelligence') => void;
   onNewTicket: () => void;
+  onApplyView?: (query: any) => void;
 }
 
-const Sidebar = ({ activeView, setActiveView, onNewTicket }: SidebarProps) => {
+const Sidebar = ({ activeView, setActiveView, onNewTicket, onApplyView }: SidebarProps) => {
   const { user, signOut } = useAuth();
   const [spacesOpen, setSpacesOpen] = useState(true);
+  const [viewsOpen, setViewsOpen] = useState(true);
+  const [savedViews, setSavedViews] = useState<SavedView[]>([]);
+
+  React.useEffect(() => {
+    fetch('/api/views').then(res => res.ok && res.json()).then(data => {
+      if (Array.isArray(data)) setSavedViews(data);
+    }).catch(console.error);
+  }, []);
 
   const navItems = [
     { id: 'intelligence', label: 'Dashboard', icon: BarChart },
     { id: 'kanban', label: 'Board', icon: LayoutGrid },
     { id: 'list',   label: 'List',  icon: List },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
+    { id: 'sla',    label: 'SLA Monitor', icon: Shield },
   ];
 
   return (
@@ -144,6 +160,44 @@ const Sidebar = ({ activeView, setActiveView, onNewTicket }: SidebarProps) => {
                   <span>{space.name}</span>
                 </button>
               ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Saved Views */}
+      <div className="px-2 mt-4 flex-1 overflow-y-auto">
+        <button
+          onClick={() => setViewsOpen(!viewsOpen)}
+          className="w-full flex items-center gap-2 px-3 py-1 text-[9px] uppercase tracking-widest font-bold text-white/20 hover:text-white/60 transition-colors"
+        >
+          {viewsOpen ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
+          <span>Saved Filters</span>
+        </button>
+
+        <AnimatePresence initial={false}>
+          {viewsOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden mt-1 space-y-0.5"
+            >
+              {savedViews.length === 0 ? (
+                <div className="px-3 py-1.5 text-xs text-white/40 italic">No saved filters</div>
+              ) : (
+                savedViews.map(view => (
+                  <button
+                    key={view.id}
+                    onClick={() => {
+                      if (onApplyView) onApplyView(view.query);
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-sm transition-colors text-white/40 hover:text-white hover:bg-white/5"
+                  >
+                    <span>{view.name}</span>
+                  </button>
+                ))
+              )}
             </motion.div>
           )}
         </AnimatePresence>

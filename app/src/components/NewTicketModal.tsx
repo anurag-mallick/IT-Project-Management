@@ -11,6 +11,16 @@ interface NewTicketModalProps {
   onSuccess: () => void;
 }
 
+interface Template {
+  id: number;
+  name: string;
+  description: string;
+  status: TicketStatus;
+  priority: Priority;
+  tags: string[];
+  checklists: any;
+}
+
 // P0 = Critical (highest), P1 = High, P2 = Normal (default), P3 = Low
 const PRIORITY_OPTIONS: { value: Priority; label: string }[] = [
   { value: 'P0', label: 'P0 – Critical' },
@@ -24,6 +34,7 @@ const NewTicketModal = ({ isOpen, onClose, onSuccess }: NewTicketModalProps) => 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [staff, setStaff] = useState<User[]>([]);
+  const [templates, setTemplates] = useState<Template[]>([]);
   const [attachment, setAttachment] = useState<File | null>(null);
   const [assets, setAssets] = useState<any[]>([]);
   const [formData, setFormData] = useState<{
@@ -67,8 +78,32 @@ const NewTicketModal = ({ isOpen, onClose, onSuccess }: NewTicketModalProps) => 
         .then(r => r.ok ? r.json() : [])
         .then(data => setAssets(Array.isArray(data) ? data : []))
         .catch(() => setAssets([]));
+
+      // Fetch templates
+      fetch('/api/templates', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(r => r.ok ? r.json() : [])
+        .then(data => setTemplates(Array.isArray(data) ? data : []))
+        .catch(() => setTemplates([]));
     }
   }, [isOpen, token]);
+
+  const handleTemplateSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const tId = parseInt(e.target.value);
+    if (!tId) return;
+    const t = templates.find(x => x.id === tId);
+    if (t) {
+      setFormData(prev => ({
+        ...prev,
+        title: t.name,
+        description: t.description,
+        priority: t.priority as Priority,
+        status: t.status as TicketStatus,
+        tags: t.tags ? t.tags.join(', ') : '',
+      }));
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -147,6 +182,21 @@ const NewTicketModal = ({ isOpen, onClose, onSuccess }: NewTicketModalProps) => 
         )}
         
         <form onSubmit={handleSubmit} className="space-y-5">
+            {templates.length > 0 && (
+              <div className="space-y-1.5 mb-2">
+                <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold ml-1 block">Apply Template</label>
+                <select
+                  onChange={handleTemplateSelect}
+                  className="w-full bg-indigo-500/10 border border-indigo-500/30 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 text-indigo-200 transition-colors"
+                >
+                  <option value="">-- Optional: Select a template --</option>
+                  {templates.map(t => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
           <div className="space-y-1.5">
             <label className="text-[10px] uppercase tracking-widest text-white/40 font-bold ml-1 block">Title *</label>
             <input 

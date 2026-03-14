@@ -1,37 +1,86 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { withAuth } from '@/lib/auth';
+import { Resend } from 'resend';
 
-export const GET = withAuth(async (req: NextRequest, user: any, { params }: { params: Promise<{ id: string }> }) => {
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export const POST = withAuth(async (req: NextRequest, user: any, { params }: { params: { id: string } }) => {
   try {
-    const { id } = await params;
-    const comments = await prisma.comment.findMany({
-      where: { ticketId: parseInt(id) },
-      include: { author: { select: { name: true, username: true } } },
-      orderBy: { createdAt: 'asc' }
-    });
-    return NextResponse.json(comments);
-  } catch (err) {
-    return NextResponse.json({ error: 'Failed to fetch comments' }, { status: 500 });
-  }
-});
+    const ticketId = parseInt(params.id);
+    if (isNaN(ticketId)) {
+      return NextResponse.json({ error: 'Invalid ticket ID' }, { status: 400 });
+    }
 
-export const POST = withAuth(async (req: NextRequest, user: any, { params }: { params: Promise<{ id: string }> }) => {
-  try {
-    const { id } = await params;
-    const { content } = await req.json();
+    const body = await req.json();
+    const { content } = body;
 
+    if (!content || !content.trim()) {
+      return NextResponse.json({ error: 'Comment content is required' }, { status: 400 });
+    }
+
+    // 1. Create the comment
     const comment = await prisma.comment.create({
       data: {
-        content,
-        ticketId: parseInt(id),
-        // Fallback since supabase user doesn't map to int ID yet directly without trigger map setup
-        authorName: user?.email || 'Unknown User'
+        content: content.trim(),
+        ticketId,
+        authorId: user.id,
+        authorName: user.name || user.username,
       },
-      include: { author: { select: { name: true, username: true } } }
+      include: {
+         author: { select: { name: true, username: true } },
+         ticket: { select: { title: true } }
+      }
     });
-    return NextResponse.json(comment);
-  } catch (err) {
-    return NextResponse.json({ error: 'Failed to add comment' }, { status: 400 });
+
+    // 2. Parse @mentions
+    // Look for @username
+    const mentionRegex = /@([a-zA-Z0-9_\-\.]+)/g;
+    const matches = [...content.matchAll(mentionRegex)];
+    const mentionedUsernames = matches.map(m => m[1]);
+
+    if (mentionedUsernames.length > 0) {
+      // Find the associated users
+      const mentionedUsers = await prisma.user.findMany({
+        where: {
+          username: { in: mentionedUsernames }
+        },
+        select: { email: true, name: true, username: true }
+      });
+
+      // 3. Send Emails via Resend
+      if (process.env.RESEND_API_KEY && mentionedUsers.length > 0) {
+         try {
+             // Send an email to each mentioned user
+             const emailPromises = mentionedUsers.map(mentionedUser => {
+                 return resend.emails.send({
+                    from: 'Horizon IT <notifications@onboarding.resend.dev>', // Use a verified domain in production
+                    to: [mentionedUser.email],
+                    subject: `You were mentioned in Ticket #${ticketId}`,
+                    html: `
+                        <h2>You were mentioned by ${user.name || user.username}</h2>
+                        <p><strong>Ticket:</strong> ${comment.ticket?.title} (#${ticketId})</p>
+                        <hr />
+                        <p><strong>Comment:</strong></p>
+                        <p>${content}</p>
+                        <br />
+                        <p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/?ticketId=${ticketId}">View Ticket</a></p>
+                    `
+                 });
+             });
+             
+             await Promise.allSettled(emailPromises);
+         } catch (emailError) {
+             console.error("Failed to send mention emails:", emailError);
+             // Don't fail the comment creation if email fails
+         }
+      }
+    }
+
+    return NextResponse.json(comment, { status: 201 });
+
+  } catch (error) {
+    console.error('Failed to create comment:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 });
