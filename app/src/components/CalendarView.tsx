@@ -4,7 +4,7 @@ import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import { enUS } from 'date-fns/locale/en-US';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { Ticket } from '@/types';
+import { Ticket, User } from '@/types';
 import TicketDetailModal from '@/components/TicketDetailModal';
 import { Loader2, AlertCircle } from 'lucide-react';
 
@@ -20,7 +20,12 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const CalendarView = () => {
+interface CalendarViewProps {
+  users?: User[];
+  assets?: any[];
+}
+
+const CalendarView = ({ users, assets }: CalendarViewProps) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState(true);
@@ -165,6 +170,8 @@ const CalendarView = () => {
         ticket={selectedTicket}
         onClose={() => setSelectedTicket(null)}
         onUpdate={fetchTickets}
+        users={users}
+        assets={assets}
       />
     </div>
   );

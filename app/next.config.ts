@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
     // Allow production builds to succeed even if there are type errors.
     ignoreBuildErrors: true,
   },
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'recharts', 'framer-motion', 'date-fns']
+  }
 };
 
 export default nextConfig;

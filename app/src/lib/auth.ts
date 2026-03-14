@@ -24,12 +24,14 @@ export async function verifyUser() {
 // Higher order function for API route protection
 export function withAuth(handler: (req: NextRequest, user: any, context?: any) => Promise<NextResponse>) {
   return async (req: NextRequest, context?: any) => {
-    const user = await getUser();
+    // For API routes, session check is faster than full getUser
+    const supabase = await createClient();
+    const { data: { session }, error } = await supabase.auth.getSession();
     
-    if (!user) {
+    if (error || !session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    return handler(req, user, context);
+    return handler(req, session.user, context);
   };
 }

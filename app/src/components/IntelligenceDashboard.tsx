@@ -47,31 +47,25 @@ const IntelligenceDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch('/api/tickets?all=true');
+        const res = await fetch('/api/stats');
         if (!res.ok) throw new Error('Failed to load dashboard data');
         const data = await res.json();
-        const tickets: any[] = data.tickets || [];
 
+        // Process data returned from /api/stats
         const byStatus: Record<string, number> = {};
+        data.statusGroups?.forEach((g: any) => byStatus[g.status] = g._count.status);
+        
         const byPriority: Record<string, number> = {};
+        data.priorityGroups?.forEach((g: any) => byPriority[g.priority] = g._count.priority);
+        
         const trendMap: Record<string, number> = {};
-        let slaBreached = 0;
         const now = new Date();
-
-        // Initialize trend for last 7 days
         for (let i = 6; i >= 0; i--) {
           const d = format(subDays(now, i), 'MMM dd');
           trendMap[d] = 0;
         }
 
-        tickets.forEach(t => {
-          byStatus[t.status] = (byStatus[t.status] || 0) + 1;
-          byPriority[t.priority] = (byPriority[t.priority] || 0) + 1;
-          
-          if (t.slaBreachAt && new Date(t.slaBreachAt) < now && t.status !== 'RESOLVED' && t.status !== 'CLOSED') {
-            slaBreached++;
-          }
-
+        data.recentTickets?.forEach((t: any) => {
           const createdDate = format(new Date(t.createdAt), 'MMM dd');
           if (trendMap[createdDate] !== undefined) {
             trendMap[createdDate]++;
@@ -79,12 +73,12 @@ const IntelligenceDashboard = () => {
         });
 
         setStats({
-          total: tickets.length,
+          total: data.total,
           open: byStatus['TODO'] || 0,
           inProgress: byStatus['IN_PROGRESS'] || 0,
           resolved: (byStatus['RESOLVED'] || 0) + (byStatus['CLOSED'] || 0),
           closed: byStatus['CLOSED'] || 0,
-          slaBreached,
+          slaBreached: data.slaBreached || 0,
           byStatus: Object.entries(byStatus).map(([name, value]) => ({ name: STATUS_LABELS[name] || name, value })),
           byPriority: Object.entries(byPriority).map(([name, value]) => ({ name, value })),
           trend: Object.entries(trendMap).map(([date, count]) => ({ date, count })),

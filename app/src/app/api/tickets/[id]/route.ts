@@ -11,9 +11,14 @@ export const PATCH = withAuth(async (req: NextRequest, user: any, { params }: { 
     const body = await req.json();
     const { status, priority, title, description, assignedToId, tags, dueDate, assetId } = body;
 
-    const currentTicket = await prisma.ticket.findUnique({
-      where: { id: parseInt(id) }
-    });
+    const [currentTicket, dbUser] = await Promise.all([
+      prisma.ticket.findUnique({
+        where: { id: parseInt(id) }
+      }),
+      prisma.user.findFirst({
+        where: { username: user.email }
+      })
+    ]);
 
     if (!currentTicket) return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
 
@@ -61,11 +66,7 @@ export const PATCH = withAuth(async (req: NextRequest, user: any, { params }: { 
     }
 
     if (changes.length > 0) {
-      // Find the user if they exist in our DB
-      const dbUser = await prisma.user.findFirst({
-        where: { username: user.email }
-      });
-
+      // User already fetched concurrently at start
       const logs = [];
       if (status && status !== currentTicket.status) {
         logs.push({ ticketId: parseInt(id), userId: dbUser?.id, action: 'STATUS_CHANGE', field: 'status', oldValue: currentTicket.status, newValue: status });
@@ -82,14 +83,7 @@ export const PATCH = withAuth(async (req: NextRequest, user: any, { params }: { 
           data: logs
         });
         
-        // Keep the system comment for visibility in the thread for now
-        await prisma.comment.create({
-          data: {
-            content: `System: Updated ${changes.join(' and ')}`,
-            ticketId: parseInt(id),
-            authorName: user.email || 'System'
-          }
-        });
+        // Redundant comment creation removed, activityLog handles it
       }
     }
 

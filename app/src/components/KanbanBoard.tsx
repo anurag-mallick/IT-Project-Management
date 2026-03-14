@@ -9,6 +9,8 @@ import { Loader2 } from "lucide-react";
 
 interface KanbanProps {
   searchQuery?: string;
+  users?: User[];
+  assets?: any[];
 }
 
 const KanbanBoard = ({ searchQuery = "" }: KanbanProps) => {
@@ -45,7 +47,7 @@ const KanbanBoard = ({ searchQuery = "" }: KanbanProps) => {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/tickets?all=true");
+      const res = await fetch("/api/tickets/kanban");
       if (!res.ok) throw new Error("Failed to fetch tickets");
       const data = await res.json();
       setTickets(data.tickets || []);
@@ -73,7 +75,7 @@ const KanbanBoard = ({ searchQuery = "" }: KanbanProps) => {
             setTickets((prev) =>
               prev.map((t) =>
                 t.id === (payload.new as Ticket).id
-                  ? (payload.new as Ticket)
+                  ? { ...t, ...(payload.new as Ticket) }
                   : t,
               ),
             );
@@ -200,6 +202,8 @@ const KanbanBoard = ({ searchQuery = "" }: KanbanProps) => {
           isOpen={!!selectedTicket}
           onClose={() => setSelectedTicket(null)}
           onUpdate={fetchTickets}
+          users={users}
+          assets={assets}
         />
       </div>
     </DragDropContext>

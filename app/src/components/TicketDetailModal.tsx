@@ -12,6 +12,8 @@ interface TicketDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpdate: () => void;
+  users?: User[];
+  assets?: any[];
 }
 
 const STATUS_OPTIONS = ['TODO','IN_PROGRESS','AWAITING_USER','RESOLVED','CLOSED'];
@@ -24,13 +26,13 @@ const PRIORITY_LABELS: Record<string, string> = {
   P3: 'P3 – Low',
 };
 
-const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate }: TicketDetailModalProps) => {
+const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate, users, assets: initialAssets }: TicketDetailModalProps) => {
   const { user, signOut } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
 
   const [comments, setComments] = useState<TicketComment[]>([]);
-  const [staff, setStaff] = useState<User[]>([]);
-  const [assets, setAssets] = useState<any[]>([]);
+  const [staff, setStaff] = useState<User[]>(users || []);
+  const [assets, setAssets] = useState<any[]>(initialAssets || []);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -83,10 +85,12 @@ const TicketDetailModal = ({ ticket, isOpen, onClose, onUpdate }: TicketDetailMo
       setLocalAsset(ticket.assetId ? String(ticket.assetId) : '');
       setChecklists(ticket.checklists || []);
       fetchComments();
-      fetchStaff();
-      fetchAssets();
+      if (!users) fetchStaff();
+      else setStaff(users);
+      if (!initialAssets) fetchAssets();
+      else setAssets(initialAssets);
     }
-  }, [isOpen, ticket, fetchComments, fetchStaff, fetchAssets]);
+  }, [isOpen, ticket, fetchComments, fetchStaff, fetchAssets, users, initialAssets]);
 
   const saveTicket = async () => {
     if (!ticket) return;

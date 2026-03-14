@@ -27,9 +27,11 @@ const statusColors: Record<string, string> = {
 
 interface ListBoardProps {
   searchQuery?: string;
+  users?: User[];
+  assets?: any[];
 }
 
-const ListBoard = ({ searchQuery = "" }: ListBoardProps) => {
+const ListBoard = ({ searchQuery = "", users, assets }: ListBoardProps) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, totalCount: 0 });
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
@@ -200,6 +202,8 @@ const ListBoard = ({ searchQuery = "" }: ListBoardProps) => {
         ticket={selectedTicket}
         onClose={() => setSelectedTicket(null)}
         onUpdate={() => fetchTickets(pagination.page)}
+        users={users}
+        assets={assets}
       />
     </>
   );

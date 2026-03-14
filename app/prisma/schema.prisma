@@ -67,6 +67,11 @@ model Ticket {
   activityLogs  ActivityLog[]
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
+
+  @@index([status])
+  @@index([assignedToId])
+  @@index([priority])
+  @@index([createdAt])
 }
 
 model Comment {
