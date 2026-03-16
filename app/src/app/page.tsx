@@ -19,6 +19,7 @@ const Dashboard = () => {
   const [activeView, setActiveView] = useState<'kanban' | 'list' | 'reports' | 'calendar' | 'intelligence' | 'sla'>('intelligence');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
@@ -56,7 +57,7 @@ const Dashboard = () => {
 
   return (
     <AuthGuard>
-      <div className="flex bg-zinc-950 min-h-screen text-white overflow-hidden">
+      <div className="flex bg-zinc-950 min-h-screen text-white overflow-hidden relative">
         <Sidebar 
           activeView={activeView as any} 
           setActiveView={setActiveView as any} 
@@ -65,17 +66,28 @@ const Dashboard = () => {
             if (query.view) setActiveView(query.view);
             if (query.search !== undefined) setSearchQuery(query.search);
           }}
+          isMobileOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
         />
+
+        {/* Mobile Overlay */}
+        {isMobileMenuOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
         
-        <main className="flex-1 overflow-y-auto flex flex-col">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col pt-14 md:pt-0 pb-20 md:pb-0 h-screen">
           <NavHeader 
             activeView={activeView as any} 
             setActiveView={setActiveView as any} 
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
+            onMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           />
           
-          <div className="px-8 pb-4 max-w-7xl mx-auto w-full flex justify-end">
+          <div className="px-4 md:px-8 pb-4 pt-4 md:pt-0 max-w-7xl mx-auto w-full flex justify-end">
              <button 
                 onClick={async () => {
                   const name = window.prompt("Enter a name for this saved view:");
@@ -99,7 +111,7 @@ const Dashboard = () => {
              </button>
           </div>
 
-          <div className="px-8 max-w-7xl mx-auto w-full">
+          <div className="px-4 md:px-8 max-w-7xl mx-auto w-full pb-8">
             {activeView === 'kanban' && <KanbanBoard searchQuery={debouncedSearchQuery} users={staff} assets={assets} />}
             {activeView === 'list' && <ListBoard key={`${refreshKey}`} searchQuery={debouncedSearchQuery} users={staff} assets={assets} />}
             {activeView === 'reports' && <ReportsView />}

@@ -5,7 +5,7 @@ import {
   LayoutGrid, List, BarChart, Users, LogOut,
   ChevronDown, ChevronRight, Shield, Database, 
   Plus, ExternalLink, Calendar, Github, Linkedin, Cpu,
-  Settings as SettingsIcon
+  Settings as SettingsIcon, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -20,9 +20,11 @@ interface SidebarProps {
   setActiveView: (view: 'kanban' | 'list' | 'reports' | 'calendar' | 'intelligence') => void;
   onNewTicket: () => void;
   onApplyView?: (query: any) => void;
+  isMobileOpen?: boolean;
+  onClose?: () => void;
 }
 
-const Sidebar = ({ activeView, setActiveView, onNewTicket, onApplyView }: SidebarProps) => {
+const Sidebar = ({ activeView, setActiveView, onNewTicket, onApplyView, isMobileOpen, onClose }: SidebarProps) => {
   const { user, signOut } = useAuth();
   const [spacesOpen, setSpacesOpen] = useState(true);
   const [viewsOpen, setViewsOpen] = useState(true);
@@ -43,7 +45,7 @@ const Sidebar = ({ activeView, setActiveView, onNewTicket, onApplyView }: Sideba
   ];
 
   return (
-    <aside className="w-[260px] bg-zinc-950/60 border-r border-white/5 flex flex-col h-screen backdrop-blur-3xl shrink-0">
+    <aside className={`w-[260px] bg-zinc-950/95 md:bg-zinc-950/60 border-r border-white/5 flex flex-col h-screen backdrop-blur-3xl shrink-0 fixed inset-y-0 left-0 z-50 md:relative transition-transform duration-300 ease-in-out ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
       {/* Workspace Header - Rebranded to Horizon IT */}
       <div className="p-4 flex items-center justify-between border-b border-white/5">
         <div className="flex items-center gap-3">
@@ -55,7 +57,14 @@ const Sidebar = ({ activeView, setActiveView, onNewTicket, onApplyView }: Sideba
             <span className="text-[10px] text-white/30 mt-1 uppercase tracking-tighter font-bold">Workspace</span>
           </div>
         </div>
-        <ChevronDown size={12} className="text-white/20" />
+        <div className="flex items-center gap-2">
+          {onClose && (
+            <button onClick={onClose} className="md:hidden p-1 text-white/40 hover:text-white hover:bg-white/10 rounded">
+              <X size={16} />
+            </button>
+          )}
+          <ChevronDown size={12} className="text-white/20 hidden md:block" />
+        </div>
       </div>
 
       {/* New Ticket CTA */}

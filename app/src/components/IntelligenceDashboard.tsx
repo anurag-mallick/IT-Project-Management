@@ -100,7 +100,7 @@ const IntelligenceDashboard = () => {
   );
 
   if (error) return (
-    <div className="glass-card p-6 flex items-center gap-3 text-red-400">
+    <div className="glass-card p-4 md:p-6 flex items-center gap-3 text-red-400">
       <AlertCircle size={20} />
       <span>{error}</span>
     </div>
@@ -132,7 +132,7 @@ const IntelligenceDashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Trend Chart */}
-        <div className="lg:col-span-2 glass-card p-6 flex flex-col">
+        <div className="lg:col-span-2 glass-card p-4 md:p-6 flex flex-col">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-sm font-bold uppercase tracking-widest text-white/60 flex items-center gap-2">
               <TrendingUp size={14} /> Ticket Volume Trend
@@ -162,7 +162,7 @@ const IntelligenceDashboard = () => {
         </div>
 
         {/* Priority Distribution */}
-        <div className="glass-card p-6 flex flex-col">
+        <div className="glass-card p-4 md:p-6 flex flex-col">
           <h3 className="text-sm font-bold uppercase tracking-widest text-white/60 mb-6">Priority Mix</h3>
           <div className="h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -196,7 +196,7 @@ const IntelligenceDashboard = () => {
       </div>
 
       {/* Status Breakdown */}
-      <div className="glass-card p-6">
+      <div className="glass-card p-4 md:p-6">
         <h3 className="text-sm font-bold uppercase tracking-widest text-white/60 mb-6">Workflow Distribution</h3>
         <div className="h-[200px] w-full">
           <ResponsiveContainer width="100%" height="100%">
