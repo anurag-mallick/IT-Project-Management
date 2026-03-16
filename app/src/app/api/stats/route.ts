@@ -34,6 +34,11 @@ export const GET = withAuth(async () => {
       })
     ]);
 
+    console.log("Runtime DATABASE_URL in api route:", process.env.DATABASE_URL);
+
+    // Get current date and date 30 days ago
+    const thirtyDaysAgo = subDays(new Date(), 30);
+
     return NextResponse.json({
       total,
       statusGroups,
@@ -41,8 +46,10 @@ export const GET = withAuth(async () => {
       slaBreached,
       recentTickets
     });
-  } catch (error) {
-    console.error('Stats fetch error:', error);
+  } catch (error: any) {
+    console.error('Stats fetch error:');
+    console.dir(error, { depth: null });
+    if (error.message) console.error('Error MESSAGE:', error.message);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 });

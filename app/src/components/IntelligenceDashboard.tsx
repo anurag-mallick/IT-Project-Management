@@ -48,7 +48,10 @@ const IntelligenceDashboard = () => {
     const fetchStats = async () => {
       try {
         const res = await fetch('/api/stats');
-        if (!res.ok) throw new Error('Failed to load dashboard data');
+        if (!res.ok) {
+          const errData = await res.json().catch(() => null);
+          throw new Error(`Failed to load dashboard data. Status: ${res.status}. Error: ${JSON.stringify(errData)}`);
+        }
         const data = await res.json();
 
         // Process data returned from /api/stats
