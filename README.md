@@ -62,7 +62,7 @@ Horizon IT is built on a modern, type-safe stack designed for horizontal scale a
 | :--- | :--- |
 | **Frontend** | [Next.js 15 (App Router)](https://nextjs.org/) |
 | **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) & Vanilla CSS |
-| **Database** | [PostgreSQL (Supabase)](https://supabase.com/) |
+| **Database** | [PostgreSQL (Neon)](https://neon.tech/) |
 | **ORM** | [Prisma](https://www.prisma.io/) |
 | **Authentication** | JWT with Role-Based Access Control (RBAC) |
 | **Animations** | [Framer Motion](https://www.framer.com/motion/) |
@@ -98,7 +98,7 @@ The interface follows a **Premium Dark** aesthetic, utilizing modern design tren
 ### 1. Prerequisites
 - **Node.js** ≥ 18.x
 - **NPM** ≥ 9.x
-- A **Supabase** project for PostgreSQL and Auth.
+- A **Neon** account for PostgreSQL and pooled connections.
 
 ### 🚀 Quick Start (Production/Vercel)
 
@@ -110,17 +110,19 @@ npm install
 ```
 
 2. **Environment Variables**:
-Configure your `.env.local` (and Vercel Dashboard) with the following. Use the **aws-1** pooler for stability:
+Configure your `.env` (and Vercel Dashboard) with the following. The project utilizes **Neon's pooled connections** for transaction management:
+
 ```env
-NEXT_PUBLIC_SUPABASE_URL="https://netsgjeuzsnlchhwbqif.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
-
-# Database connection (Prisma 7 format)
+# Neon Database connection (Prisma 7 format)
 # Pooler (Transaction Mode) for app
-DATABASE_URL="postgresql://postgres.netsgjeuzsnlchhwbqif:[PASSWORD]@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
+DATABASE_URL="postgresql://[USER]:[PASS]@[POOLER_HOST]/neondb?sslmode=require"
 
-# Pooler (Session Mode) for migrations
-DIRECT_URL="postgresql://postgres.netsgjeuzsnlchhwbqif:[PASSWORD]@aws-1-ap-southeast-2.pooler.supabase.com:5432/postgres"
+# Direct connection for migrations
+DIRECT_URL="postgresql://[USER]:[PASS]@[HOST]/neondb?sslmode=require"
+
+# Traditional Auth Keys (Optional)
+NEXT_PUBLIC_SUPABASE_URL="https://[PROJECT-ID].supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
 ```
 
 3. **Database Setup**:
