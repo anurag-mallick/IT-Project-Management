@@ -100,30 +100,40 @@ The interface follows a **Premium Dark** aesthetic, utilizing modern design tren
 - **NPM** ≥ 9.x
 - A **Supabase** project for PostgreSQL and Auth.
 
-### 2. Deployment & Local Setup
-Clone the repository:
+### 🚀 Quick Start (Production/Vercel)
+
+1. **Clone & Install**:
 ```bash
-git clone https://github.com/anurag-mallick/IT-Project-Management.git
+git clone https://github.com/anurag-mallick/IT-Project-Management
 cd IT-Project-Management/app
+npm install
 ```
 
-Configure your `.env.local`:
+2. **Environment Variables**:
+Configure your `.env.local` (and Vercel Dashboard) with the following. Use the **aws-1** pooler for stability:
 ```env
-NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
+NEXT_PUBLIC_SUPABASE_URL="https://netsgjeuzsnlchhwbqif.supabase.co"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
 
-# Database connection
-DATABASE_URL="postgresql://postgres.[ID]:[PWD]@db.[ID].supabase.co:5432/postgres?pgbouncer=true"
-DIRECT_URL="postgresql://postgres.[ID]:[PWD]@db.[ID].supabase.co:5432/postgres"
+# Database connection (Prisma 7 format)
+# Pooler (Transaction Mode) for app
+DATABASE_URL="postgresql://postgres.netsgjeuzsnlchhwbqif:[PASSWORD]@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
+
+# Pooler (Session Mode) for migrations
+DIRECT_URL="postgresql://postgres.netsgjeuzsnlchhwbqif:[PASSWORD]@aws-1-ap-southeast-2.pooler.supabase.com:5432/postgres"
 ```
 
-Install and run:
+3. **Database Setup**:
+Ensure you have an `attachments` bucket in Supabase Storage with public access for the ITAM module.
+
+4. **Initialize**:
 ```bash
-npm install
 npx prisma generate
-npx prisma db push --skip-generate
 npm run dev
 ```
+
+> [!NOTE]
+> **Prisma 7 Configuration**: All database URLs are now managed via `prisma.config.ts`. Do not add `url` or `directUrl` to the `datasource` block in `schema.prisma`.
 
 ---
 
