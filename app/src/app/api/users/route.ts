@@ -7,7 +7,7 @@ import bcrypt from 'bcryptjs';
 async function getUsersHandler(req: NextRequest, user: SessionUser) {
   try {
     const dbUser = await prisma.user.findUnique({
-      where: { email: user.email },
+      where: { id: user.id },
       select: { role: true }
     });
     const isAdmin = dbUser?.role === 'ADMIN';
@@ -35,7 +35,7 @@ async function createUserHandler(req: NextRequest, user: SessionUser) {
   try {
     // Fix 2: Verify role in DB
     const dbUser = await prisma.user.findUnique({
-      where: { email: user.email },
+      where: { id: user.id },
       select: { role: true }
     });
     if (dbUser?.role !== 'ADMIN') {

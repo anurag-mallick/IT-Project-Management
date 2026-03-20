@@ -22,7 +22,7 @@ export const GET = withAuth(async (req: NextRequest, user: any) => {
 
 export const POST = withAuth(async (req: NextRequest, user: any) => {
     const dbUser = await prisma.user.findUnique({
-    where: { email: user.email },
+    where: { id: user.id },
     select: { role: true }
   });
   if (dbUser?.role !== 'ADMIN' && dbUser?.role !== 'STAFF') {

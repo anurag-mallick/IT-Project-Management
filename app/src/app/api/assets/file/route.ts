@@ -35,7 +35,7 @@ export const GET = withAuth(async (req: NextRequest, user: SessionUser) => {
 
     // Fetch user details including database role
     const dbUser = await prisma.user.findUnique({
-      where: { email: user.email },
+      where: { id: user.id },
       select: { id: true, role: true, name: true }
     });
 
@@ -55,12 +55,13 @@ export const GET = withAuth(async (req: NextRequest, user: SessionUser) => {
     }
 
     // Redirect to the stored public URL
-    // ensure attachment.filePath is a valid URL
+    // For Neon stack: In a real implementation you'd use Vercel Blob or similar.
+    // For now, return the filePath directly if it's already a public URL or relative path.
     const finalUrl = attachment.filePath.startsWith('http') 
       ? attachment.filePath 
-      : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/attachments/${attachment.filePath}`;
+      : attachment.filePath.startsWith('/') ? attachment.filePath : `/${attachment.filePath}`;
 
-    return NextResponse.redirect(finalUrl);
+    return NextResponse.redirect(new URL(finalUrl, req.url));
   } catch (error) {
     console.error('File serving error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
