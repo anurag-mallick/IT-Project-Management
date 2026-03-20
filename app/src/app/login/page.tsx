@@ -154,9 +154,29 @@ export default function LoginPage() {
                <span className="text-[9px] font-black uppercase tracking-widest">Horizon IT</span>
                <div className="h-px bg-white grow"></div>
              </div>
+             
              <div className="flex items-center gap-4">
+                <a 
+                  href="https://github.com/anurag-mallick" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-white/20 hover:text-white transition-all transform hover:scale-110"
+                >
+                  <Github size={16} />
+                </a>
+                <a 
+                  href="https://www.linkedin.com/in/anuragmallick901/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-white/20 hover:text-blue-400 transition-all transform hover:scale-110"
+                >
+                  <Linkedin size={16} />
+                </a>
+             </div>
+
+             <div className="flex items-center gap-4 mt-2">
                 <Globe size={14} className="text-white/20" />
-                <span className="text-[10px] text-white/20 font-medium">Status: All Systems Operational</span>
+                <span className="text-[10px] text-white/20 font-medium tracking-tight">Status: Systems Online</span>
              </div>
           </div>
         </div>
