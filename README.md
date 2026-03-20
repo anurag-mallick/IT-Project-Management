@@ -135,27 +135,29 @@ Horizon IT was strictly built with **Vercel** architecture in mind.
 
 ## 🗂️ Directory Architecture
 
-\`\`\`
+\`\`\`text
 ├── app/
-│   ├── prisma/                # Database schema (schema.prisma)
-│   ├── public/                # Static public files (images, favicons)
+│   ├── prisma/                # PostgreSQL schema and auto-generated ORM client
+│   ├── public/                # Static assets (favicons, images, svgs)
 │   ├── src/
-│   │   ├── app/               # 🚦 Next.js Routing & API Endpoints
-│   │   │   ├── api/           # Backend REST API definitions
-│   │   │   ├── admin/         # Authenticated admin panel configurations
-│   │   │   ├── assets/        # Asset display UI pages
-│   │   │   └── login/         # Front-facing login screens
-│   │   ├── components/        # 🧩 Reusable UI layout & rendering components
-│   │   │   ├── dashboards/    # Specialized analytical views
-│   │   │   ├── metrics/       # Progress graphs, stats
-│   │   │   └── ui/            # Buttons, modals, tooltips
-│   │   ├── context/           # Global React Context providers
-│   │   ├── lib/               # 🔧 Utilities (auth logic, storage adaptors)
-│   │   └── types/             # Centralized TypeScript strict definitions
-│   ├── .env.example           # Secure template layout
-│   ├── next.config.ts         # Next.js configurations
-│   ├── package.json           # Node.js dependencies
-│   └── tailwind.config.ts     # CSS Styling configuration
+│   │   ├── app/               # 🚦 Next.js App Router (Frontend Pages & API)
+│   │   │   ├── api/           # Serverless REST API Handlers
+│   │   │   ├── admin/         # Authenticated Administration Panel
+│   │   │   ├── assets/        # ITAM Asset Directory
+│   │   │   ├── settings/      # Configuration & SLA parameters
+│   │   │   ├── submit/        # Public-facing ticket submission portal
+│   │   │   ├── layout.tsx     # Root Next.js Layout
+│   │   │   └── globals.css    # Global Tailwind v4 CSS
+│   │   ├── components/        # 🧩 Modular React UI Components
+│   │   │   ├── dashboards/    # Specialized Views (Intelligence, Kanban)
+│   │   │   ├── metrics/       # Performance & SLA tracking widgets
+│   │   │   ├── ui/            # Generic components (Buttons, Inputs, Toasts)
+│   │   │   └── NavHeader.tsx  # Global Navigation and Search
+│   │   ├── context/           # Global React Contexts (AuthContext, Density)
+│   │   └── lib/               # 🔧 Core Services (JWT, Prisma DB, Storage)
+│   ├── .env.example           # Example environment template
+│   ├── next.config.ts         # Next.js 15 Compiler Configuration
+│   └── package.json           # Dependency Definitions and Scripts
 \`\`\`
 
 ---
@@ -181,4 +183,9 @@ See the [LICENSE](LICENSE) file for more information.
 
 ---
 
-Made with ❤️ by internal developers and external open-source professionals.
+### Developed By
+
+**Anurag Mallick**  
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Anurag_Mallick-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/anuragmallick/)
+
+*Horizon IT Open Source Tooling | Built on Next.js 15, Neon Postgres, Prisma, and Tailwind CSS v4*
