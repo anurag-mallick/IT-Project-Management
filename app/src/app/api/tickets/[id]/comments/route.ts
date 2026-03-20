@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withAuth } from '@/lib/auth';
+import { withAuth, SessionUser } from '@/lib/auth';
 import { Resend } from 'resend';
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-export const GET = withAuth(async (req: NextRequest, _user: { email: string; id: number; name?: string; username: string; role: string }, { params }: { params: Promise<{ id: string }> }) => {
+export const GET = withAuth(async (req: NextRequest, _user: SessionUser, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const { id } = await params;
     const ticketId = parseInt(id);
@@ -35,7 +35,7 @@ export const GET = withAuth(async (req: NextRequest, _user: { email: string; id:
   }
 });
 
-export const POST = withAuth(async (req: NextRequest, user: { email: string; id: number; name?: string; username: string; role: string }, { params }: { params: Promise<{ id: string }> }) => {
+export const POST = withAuth(async (req: NextRequest, user: SessionUser, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const { id } = await params;
     const ticketId = parseInt(id);
@@ -65,9 +65,7 @@ export const POST = withAuth(async (req: NextRequest, user: { email: string; id:
     });
 
     // Log the comment addition
-    const dbUser = await prisma.user.findFirst({
-      where: { username: user.email }
-    });
+    const dbUser = await prisma.user.findUnique({ where: { email: user.email } });
 
     const truncatedContent = content.length > 80 ? content.substring(0, 80) + '...' : content;
     

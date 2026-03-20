@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withAuth } from '@/lib/auth';
+import { withAuth, SessionUser } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-export const POST = withAuth(async (req: NextRequest, user: any) => {
+export const POST = withAuth(async (req: NextRequest, user: SessionUser) => {
   try {
     const { title, description } = await req.json();
 

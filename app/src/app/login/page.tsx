@@ -11,11 +11,13 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { user, isLoading } = useAuth();
+  const { refreshProfile, user, isLoading } = useAuth();
 
   useEffect(() => {
     if (!isLoading && user) {
+      await refreshProfile();
       router.push('/');
+      router.refresh();
     }
   }, [user, isLoading, router]);
 

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withAuth } from '@/lib/auth';
+import { withAuth, SessionUser } from '@/lib/auth';
 
-export const PATCH = withAuth(async (req: NextRequest, user: { email: string; id: number; name?: string; username: string; role: string }, { params }: { params: Promise<{ id: string }> }) => {
+export const PATCH = withAuth(async (req: NextRequest, user: SessionUser, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const { id } = await params;
     const { isCompleted, title } = await req.json();
@@ -17,9 +17,7 @@ export const PATCH = withAuth(async (req: NextRequest, user: { email: string; id
     });
 
     if (isCompleted !== undefined) {
-      const dbUser = await prisma.user.findFirst({
-        where: { username: user.email }
-      });
+      const dbUser = await prisma.user.findUnique({ where: { email: user.email } });
 
       await prisma.activityLog.create({
         data: {
@@ -37,7 +35,7 @@ export const PATCH = withAuth(async (req: NextRequest, user: { email: string; id
   }
 });
 
-export const DELETE = withAuth(async (req: NextRequest, _user: { email: string; id: number; name?: string; username: string; role: string }, { params }: { params: Promise<{ id: string }> }) => {
+export const DELETE = withAuth(async (req: NextRequest, _user: SessionUser, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const { id } = await params;
     

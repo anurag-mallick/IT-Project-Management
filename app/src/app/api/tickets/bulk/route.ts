@@ -68,9 +68,7 @@ export const PATCH = withAuth(async (req: NextRequest, user: SessionUser) => {
     });
 
     // Logging bulk updates
-    const dbUser = await prisma.user.findFirst({
-      where: { username: user.email }
-    });
+    const dbUser = await prisma.user.findUnique({ where: { email: user.email } });
 
     const logs: any[] = [];
     let assignedUserName: string | null = null;

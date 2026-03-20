@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { withAuth } from '@/lib/auth';
+import { withAuth, SessionUser } from '@/lib/auth';
 
-export const POST = withAuth(async (req: NextRequest, user: { email: string; id: number; name?: string; username: string; role: string }, { params }: { params: Promise<{ id: string }> }) => {
+export const POST = withAuth(async (req: NextRequest, user: SessionUser, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const { id } = await params;
     const { title } = await req.json();
@@ -18,9 +18,7 @@ export const POST = withAuth(async (req: NextRequest, user: { email: string; id:
       }
     });
 
-    const dbUser = await prisma.user.findFirst({
-      where: { username: user.email }
-    });
+    const dbUser = await prisma.user.findUnique({ where: { email: user.email } });
 
     await prisma.activityLog.create({
       data: {

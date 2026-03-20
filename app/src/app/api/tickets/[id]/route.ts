@@ -15,15 +15,15 @@ export const PATCH = withAuth(async (req: NextRequest, user: any, { params }: { 
       prisma.ticket.findUnique({
         where: { id: parseInt(id) }
       }),
-      prisma.user.findFirst({
-        where: { username: user.email }
-      })
+      prisma.user.findUnique({ where: { email: user.email } })
     ]);
 
     if (!currentTicket) return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
 
     const data: any = {};
     if (status !== undefined) data.status = status;
+    if (title !== undefined) data.title = title;
+    if (description !== undefined) data.description = description;
     if ('assignedToId' in body) {
       data.assignedToId = assignedToId ? parseInt(assignedToId) : null;
     }
@@ -117,7 +117,7 @@ export const PATCH = withAuth(async (req: NextRequest, user: any, { params }: { 
         await sendTicketEmail({
           type: 'ASSIGNED',
           ticket: autoUpdatedTicket as any,
-          recipient: { email: assigneeUser.username, name: assigneeUser.name || 'User' }
+          recipient: { email: assigneeUser.email ?? assigneeUser.username, name: assigneeUser.name || 'User' }
         });
       }
     } else if (data.status && data.status !== currentTicket.status) {
@@ -127,7 +127,7 @@ export const PATCH = withAuth(async (req: NextRequest, user: any, { params }: { 
          await sendTicketEmail({
             type: data.status === 'RESOLVED' ? 'RESOLVED' : 'UPDATED',
             ticket: autoUpdatedTicket as any,
-            recipient: { email: userToNotify.username, name: userToNotify.name || 'User' }
+            recipient: { email: userToNotify.email ?? userToNotify.username, name: userToNotify.name || 'User' }
          });
        }
     }
