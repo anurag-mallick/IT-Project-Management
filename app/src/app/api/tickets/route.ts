@@ -81,8 +81,8 @@ export const POST = withAuth(async (req: NextRequest, user: SessionUser) => {
       include: { assignedTo: { select: { id: true, username: true, name: true } } }
     });
 
-    const dbUser = await prisma.user.findFirst({
-      where: { username: user.email }
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id }
     });
     
     await prisma.activityLog.create({

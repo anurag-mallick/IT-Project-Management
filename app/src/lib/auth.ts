@@ -8,7 +8,7 @@ const JWT_SECRET = new TextEncoder().encode(
 );
 
 export interface SessionUser {
-  id: string; // Database User ID (as string)
+  id: number; // Database User ID (as number)
   email: string;
   role?: string;
   name?: string;
@@ -49,7 +49,7 @@ export async function getUser(): Promise<SessionUser | null> {
     if (!dbUser) return null;
 
     return {
-      id: String(dbUser.id),
+      id: dbUser.id,
       email: dbUser.email,
       role: dbUser.role,
       name: dbUser.name || '',
