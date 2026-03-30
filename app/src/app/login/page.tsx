@@ -1,17 +1,114 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Shield, Mail, Lock, AlertCircle, Cpu, Zap, ShieldCheck, Globe, Github, Linkedin } from 'lucide-react';
+
+// Dragon SVG Component with flying animation
+const DragonLogo = ({ animate }: { animate: boolean }) => {
+  return (
+    <svg
+      viewBox="0 0 200 200"
+      className={`w-32 h-32 ${animate ? 'dragon-animate' : 'dragon-settled'}`}
+      style={{
+        filter: animate ? 'drop-shadow(0 0 20px rgba(59, 130, 246, 0.5))' : undefined,
+      }}
+    >
+      <defs>
+        <linearGradient id="dragonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#3b82f6" />
+          <stop offset="50%" stopColor="#8b5cf6" />
+          <stop offset="100%" stopColor="#06b6d4" />
+        </linearGradient>
+        <linearGradient id="fireGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#f59e0b" />
+          <stop offset="50%" stopColor="#ef4444" />
+          <stop offset="100%" stopColor="#f97316" />
+        </linearGradient>
+      </defs>
+
+      {/* Dragon Body */}
+      <path
+        d="M40 100 Q30 80 50 70 Q70 60 90 65 Q110 70 120 85 Q130 100 120 115 Q110 130 90 135 Q70 140 50 130 Q30 120 40 100"
+        fill="url(#dragonGradient)"
+        className="dragon-body"
+      />
+
+      {/* Dragon Head */}
+      <ellipse cx="135" cy="75" rx="25" ry="20" fill="url(#dragonGradient)" />
+
+      {/* Dragon Eye */}
+      <circle cx="142" cy="70" r="6" fill="#0f172a" />
+      <circle cx="144" cy="68" r="2" fill="#ffffff" />
+
+      {/* Dragon Horns */}
+      <path d="M125 58 Q130 45 140 50" stroke="url(#dragonGradient)" strokeWidth="4" fill="none" />
+      <path d="M145 55 Q155 40 160 50" stroke="url(#dragonGradient)" strokeWidth="4" fill="none" />
+
+      {/* Dragon Snout */}
+      <path d="M155 75 Q170 70 175 80 Q170 90 155 85" fill="url(#dragonGradient)" />
+
+      {/* Dragon Nostril */}
+      <circle cx="168" cy="78" r="2" fill="#0f172a" />
+
+      {/* Dragon Wings */}
+      <path
+        d="M80 70 Q60 40 40 50 Q20 60 30 80 Q40 100 60 90"
+        fill="url(#dragonGradient)"
+        opacity="0.8"
+        className="dragon-wing"
+      />
+      <path
+        d="M100 65 Q85 35 70 45 Q55 55 65 75 Q75 95 90 85"
+        fill="url(#dragonGradient)"
+        opacity="0.6"
+        className="dragon-wing-inner"
+      />
+
+      {/* Dragon Tail */}
+      <path
+        d="M45 115 Q25 125 15 140 Q10 155 25 160 Q40 155 50 140 Q55 125 50 115"
+        fill="url(#dragonGradient)"
+        className="dragon-tail"
+      />
+
+      {/* Dragon Spikes */}
+      <path d="M95 65 L100 50 L105 65" fill="url(#dragonGradient)" />
+      <path d="M105 70 L112 55 L118 70" fill="url(#dragonGradient)" />
+      <path d="M112 80 L120 65 L127 80" fill="url(#dragonGradient)" />
+
+      {/* Dragon Claws */}
+      <path d="M60 130 Q55 145 50 150" stroke="url(#dragonGradient)" strokeWidth="3" fill="none" />
+      <path d="M75 135 Q70 150 65 155" stroke="url(#dragonGradient)" strokeWidth="3" fill="none" />
+      <path d="M90 138 Q85 153 80 158" stroke="url(#dragonGradient)" strokeWidth="3" fill="none" />
+
+      {/* Fire Breath */}
+      <g className="dragon-fire">
+        <ellipse cx="185" cy="80" rx="15" ry="8" fill="url(#fireGradient)" opacity="0.8" />
+        <ellipse cx="195" cy="78" rx="10" ry="6" fill="url(#fireGradient)" opacity="0.6" />
+        <ellipse cx="190" cy="85" rx="8" ry="5" fill="#f59e0b" opacity="0.7" />
+      </g>
+    </svg>
+  );
+};
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [dragonAnimating, setDragonAnimating] = useState(true);
   const router = useRouter();
   const { refreshProfile, user, isLoading } = useAuth();
+
+  // Dragon animation effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDragonAnimating(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -36,7 +133,7 @@ export default function LoginPage() {
       });
 
       const data = await res.json();
-      
+
       if (!res.ok) throw new Error(data.error || 'Login failed');
 
       router.push('/');
@@ -52,19 +149,17 @@ export default function LoginPage() {
       {/* Brand Panel */}
       <div className="hidden lg:flex flex-1 relative overflow-hidden flex-col justify-between p-12 border-r border-white/5 bg-zinc-950/40">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 via-transparent to-purple-600/10" />
-        <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none" 
-             style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #ffffff10 1px, transparent 0)', backgroundSize: '40px 40px' }} />
-        
+        <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none"
+          style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #ffffff10 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+
         <div className="relative z-10 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
-            <Cpu size={20} className="text-white" />
-          </div>
+          <DragonLogo animate={dragonAnimating} />
           <span className="text-xl font-black tracking-tighter text-white">HORIZON<span className="text-blue-500">IT</span></span>
         </div>
 
         <div className="relative z-10 max-w-md">
           <h1 className="text-5xl font-black text-white leading-tight mb-6">
-            Future-Proof <br/> <span className="text-blue-500">IT Infrastructure.</span>
+            Future-Proof <br /> <span className="text-blue-500">IT Infrastructure.</span>
           </h1>
           <p className="text-white/40 text-lg leading-relaxed">
             The next generation of IT helpdesk management. Streamlined, intelligence-driven, and cloud-first.
@@ -152,35 +247,35 @@ export default function LoginPage() {
           </form>
 
           <div className="pt-8 flex flex-col items-center gap-4">
-             <div className="flex items-center gap-3 w-full opacity-20">
-               <div className="h-px bg-white grow"></div>
-               <span className="text-[9px] font-black uppercase tracking-widest">Horizon IT</span>
-               <div className="h-px bg-white grow"></div>
-             </div>
-             
-             <div className="flex items-center gap-4">
-                <a 
-                  href="https://github.com/anurag-mallick" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-white/20 hover:text-white transition-all transform hover:scale-110"
-                >
-                  <Github size={16} />
-                </a>
-                <a 
-                  href="https://www.linkedin.com/in/anuragmallick901/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-white/20 hover:text-blue-400 transition-all transform hover:scale-110"
-                >
-                  <Linkedin size={16} />
-                </a>
-             </div>
+            <div className="flex items-center gap-3 w-full opacity-20">
+              <div className="h-px bg-white grow"></div>
+              <span className="text-[9px] font-black uppercase tracking-widest">Horizon IT</span>
+              <div className="h-px bg-white grow"></div>
+            </div>
 
-             <div className="flex items-center gap-4 mt-2">
-                <Globe size={14} className="text-white/20" />
-                <span className="text-[10px] text-white/20 font-medium tracking-tight">Status: Systems Online</span>
-             </div>
+            <div className="flex items-center gap-4">
+              <a
+                href="https://github.com/anurag-mallick"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/20 hover:text-white transition-all transform hover:scale-110"
+              >
+                <Github size={16} />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/anuragmallick901/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/20 hover:text-blue-400 transition-all transform hover:scale-110"
+              >
+                <Linkedin size={16} />
+              </a>
+            </div>
+
+            <div className="flex items-center gap-4 mt-2">
+              <Globe size={14} className="text-white/20" />
+              <span className="text-[10px] text-white/20 font-medium tracking-tight">Status: Systems Online</span>
+            </div>
           </div>
         </div>
       </div>

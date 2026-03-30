@@ -35,9 +35,9 @@
   --surface-2: #27272a;
   --surface-3: #3f3f46;
 
-  --text-primary: rgba(255,255,255,0.92);
-  --text-secondary: rgba(255,255,255,0.55);
-  --text-muted: rgba(255,255,255,0.28);
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-secondary: rgba(255, 255, 255, 0.55);
+  --text-muted: rgba(255, 255, 255, 0.28);
 }
 
 body {
@@ -54,9 +54,20 @@ body {
   border-radius: 12px;
 }
 
-h1 { font-size: var(--text-xl); font-weight: 800; }
-h2 { font-size: var(--text-lg); font-weight: 700; }
-h3 { font-size: var(--text-base); font-weight: 700; }
+h1 {
+  font-size: var(--text-xl);
+  font-weight: 800;
+}
+
+h2 {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+h3 {
+  font-size: var(--text-base);
+  font-weight: 700;
+}
 
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
@@ -74,4 +85,123 @@ h3 { font-size: var(--text-base); font-weight: 700; }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
+}
+
+/* Dragon Animation */
+@keyframes dragonFly {
+  0% {
+    transform: translateX(-100vw) translateY(-50px) scale(0.3) rotate(-20deg);
+    opacity: 0;
+  }
+
+  20% {
+    transform: translateX(-60vw) translateY(-30px) scale(0.5) rotate(-10deg);
+    opacity: 0.7;
+  }
+
+  40% {
+    transform: translateX(-30vw) translateY(-20px) scale(0.7) rotate(-5deg);
+    opacity: 0.9;
+  }
+
+  60% {
+    transform: translateX(-10vw) translateY(-10px) scale(0.85) rotate(-2deg);
+    opacity: 1;
+  }
+
+  80% {
+    transform: translateX(-5vw) translateY(-5px) scale(0.95) rotate(-1deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(0) translateY(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes dragonWing {
+
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  50% {
+    transform: scaleY(0.8);
+  }
+}
+
+@keyframes dragonTail {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(5deg);
+  }
+
+  75% {
+    transform: rotate(-5deg);
+  }
+}
+
+@keyframes dragonFire {
+
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: scaleX(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleX(1.2);
+  }
+}
+
+@keyframes dragonGlow {
+
+  0%,
+  100% {
+    filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+  }
+
+  50% {
+    filter: drop-shadow(0 0 40px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 60px rgba(139, 92, 246, 0.4));
+  }
+}
+
+.dragon-animate {
+  animation: dragonFly 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
+    dragonGlow 3s ease-in-out infinite;
+}
+
+.dragon-animate .dragon-wing {
+  animation: dragonWing 0.3s ease-in-out infinite;
+}
+
+.dragon-animate .dragon-wing-inner {
+  animation: dragonWing 0.3s ease-in-out infinite 0.15s;
+}
+
+.dragon-animate .dragon-tail {
+  animation: dragonTail 0.5s ease-in-out infinite;
+}
+
+.dragon-animate .dragon-fire {
+  animation: dragonFire 0.2s ease-in-out infinite;
+}
+
+/* Dragon settled state */
+.dragon-settled {
+  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+  transition: all 0.5s ease-out;
+}
+
+.dragon-settled:hover {
+  filter: drop-shadow(0 0 30px rgba(59, 130, 246, 0.7)) drop-shadow(0 0 50px rgba(139, 92, 246, 0.3));
+  transform: scale(1.05);
 }
