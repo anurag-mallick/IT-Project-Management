@@ -1,28 +1,30 @@
-// Note: Supabase Storage is disabled. Please integrate an alternative like Vercel Blob or S3.
-import { put } from '@vercel/blob';
-
+// Updated to use local /api/upload route
 export async function uploadAttachment(ticketId: number, file: File) {
-  const sanitizedName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const path = `tickets/${ticketId}/${Date.now()}-${sanitizedName}`;
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('ticketId', ticketId.toString());
 
-  const blob = await put(path, file, {
-    access: 'public',
-    token: process.env.BLOB_READ_WRITE_TOKEN,
+  const response = await fetch('/api/upload', {
+    method: 'POST',
+    body: formData,
   });
 
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to upload attachment');
+  }
+
+  const data = await response.json();
+
   return {
-    path: blob.url,
+    path: data.url,
     name: file.name,
     size: file.size,
     type: file.type,
   };
-}`,
-    name: file.name,
-    size: file.size,
-    type: file.type
-  };
 }
 
 export async function getFileUrl(path: string) {
-  return ''; // Return empty string as storage is disabled
+  // Local files in /public/uploads are served directly
+  return path;
 }

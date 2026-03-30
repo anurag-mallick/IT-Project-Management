@@ -13,13 +13,3 @@ vi.mock('next/navigation', () => ({
   }),
   usePathname: () => '',
 }));
-
-// Mock Supabase
-vi.mock('@/lib/supabase/client', () => ({
-  createBrowserClient: vi.fn(() => ({
-    auth: {
-      getSession: vi.fn(() => Promise.resolve({ data: { session: null }, error: null })),
-      onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
-    },
-  })),
-}));

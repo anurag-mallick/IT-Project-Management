@@ -19,7 +19,7 @@
 ### 💻 IT Asset Management (ITAM)
 - **Asset Lifecycle Management:** Track hardware, software, and licenses from purchase to retirement.
 - **Assignment & Traceability:** Link physical servers or laptops directly to users and network locations.
-- **Secure File Attachments:** Directly securely upload attachments (diagnostic logs, serial number photos) via **Vercel Blob Storage**.
+- **Local File Attachments:** Directly upload attachments (diagnostic logs, serial number photos) to your server's secure local storage.
 
 ### 🔐 Next-Generation Authentication
 - **Self-Hosted Data Security:** Users, sessions, and security roles are managed directly in your PostgreSQL (Neon) database.
@@ -40,7 +40,8 @@
 | **Next.js 15**   | Full-Stack Framework (App Router)      | Provides seamless Server Actions, App Router caching, and optimized builds.     |
 | **Neon**         | Serverless PostgreSQL Database          | Branching, instant scaling, and auto-suspending free tiers.                    |
 | **Prisma ORM**   | Database interactions                   | Type-safe queries mapped perfectly to our highly relational schema.             |
-| **Vercel Blob**  | Blob Storage                            | Rapid, edge-compatible file uploads directly tied to the Vercel architecture.   |
+| **Nodemailer**   | SMTP Email                              | Robust, self-contained email delivery via standard SMTP protocols.              |
+| **Local Storage**| File Attachments                        | Simple, reliable local file uploads served directly from the public directory. |
 | **Tailwind CSS** | Styling & Utility                       | Unmatched iteration speed with extensive dark mode support.                     |
 
 ---
@@ -55,118 +56,86 @@ Getting Horizon IT running in your environment is simple.
 - **Git**
 
 ### 2. External Services Required
-To run Horizon IT successfully, you'll need the following free accounts:
+To run Horizon IT successfully, you'll need the following:
 1. **[Neon Database](https://neon.tech/)**: For the standard PostgreSQL Database.
-2. **[Vercel](https://vercel.com/)**: For deployments and Blob Storage configuration. 
+2. **SMTP Provider**: (e.g., Gmail, Outlook, or Amazon SES) for sending email notifications.
 
 ---
 
 ## 🚀 Installation & Local Development
 
 ### Step 1: Clone the Repository
-\`\`\`bash
+```bash
 git clone https://github.com/anurag-mallick/IT-Project-Management.git
 cd IT-Project-Management/app
-\`\`\`
+```
 
 ### Step 2: Install Dependencies
-\`\`\`bash
+```bash
 npm install
-\`\`\`
+```
 
 ### Step 3: Configure Environment Variables
 Copy the example environment securely.
-\`\`\`bash
+```bash
 cp .env.example .env.local
-\`\`\`
+```
 
 Open `.env.local` and populate the fields:
-\`\`\`env
-# 1. Database Connections
-# Grab these from your Neon Dashboard -> Project -> Connection Details
+```env
+# 1. Database Connections (Neon)
 DATABASE_URL="postgresql://user:password@endpoint.neon.tech/neondb?sslmode=require"
 DIRECT_URL="postgresql://user:password@endpoint.neon.tech/neondb?sslmode=require"
 
 # 2. Security
-# A random strictly generated 64-character hash for JWT signing
 JWT_SECRET="generate-a-super-secure-random-string-here"
 
-# 3. Application Metadata
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
+# 3. SMTP Email (Nodemailer)
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="587"
+SMTP_SECURE="false"
+SMTP_USER="your@email.com"
+SMTP_PASS="your-app-password"
+SMTP_FROM="Horizon IT <your@email.com>"
 
-# 4. Storage (Vercel Blob)
-BLOB_READ_WRITE_TOKEN="vercel_blob_rw_..."
-\`\`\`
+# 4. SLA Cron
+SLA_CRON_SECRET="another-random-secret"
+
+# 5. Application Metadata
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
 
 ### Step 4: Provision & Migrate the Database
 Ensure your database tables match the schema perfectly:
-\`\`\`bash
+```bash
 npx prisma generate
 npx prisma db push
-\`\`\`
-
-*(Optional)* If you want to view the database through an interface locally:
-\`\`\`bash
-npx prisma studio
-\`\`\`
+```
 
 ### Step 5: Start the Local Server
-\`\`\`bash
+```bash
 npm run dev
-\`\`\`
+```
 Horizon IT will now be accessible at `http://localhost:3000`.
 
 ---
 
 ## 📦 Deploying to Vercel
 
-Horizon IT was strictly built with **Vercel** architecture in mind.
+Horizon IT is optimized for **Vercel** but can be deployed anywhere that supports Next.js.
 
 1. Publish your cloned codebase to your GitHub/GitLab account.
 2. Go to your [Vercel Dashboard](https://vercel.com/new) and import the repository.
-3. Vercel will auto-detect the Next.js framework in the `app` directory.
-4. Go to **Environment Variables** and paste all values from your `.env.local` exactly as they are.
-5. In **Vercel -> Storage**, create a new **Vercel Blob** and link it to this project. Vercel will instantly auto-inject the `BLOB_READ_WRITE_TOKEN` variable into your environment.
-6. **Click Deploy**.
+3. Go to **Environment Variables** and paste all values from your `.env.local`.
+4. **Click Deploy**.
 
-***Post-Deployment Step***: Once deployed, update your `NEXT_PUBLIC_APP_URL` variable in Vercel to match your new `.vercel.app` production domain name!
-
----
-
-## 🗂️ Directory Architecture
-
-\`\`\`text
-├── app/
-│   ├── prisma/                # PostgreSQL schema and auto-generated ORM client
-│   ├── public/                # Static assets (favicons, images, svgs)
-│   ├── src/
-│   │   ├── app/               # 🚦 Next.js App Router (Frontend Pages & API)
-│   │   │   ├── api/           # Serverless REST API Handlers
-│   │   │   ├── admin/         # Authenticated Administration Panel
-│   │   │   ├── assets/        # ITAM Asset Directory
-│   │   │   ├── settings/      # Configuration & SLA parameters
-│   │   │   ├── submit/        # Public-facing ticket submission portal
-│   │   │   ├── layout.tsx     # Root Next.js Layout
-│   │   │   └── globals.css    # Global Tailwind v4 CSS
-│   │   ├── components/        # 🧩 Modular React UI Components
-│   │   │   ├── dashboards/    # Specialized Views (Intelligence, Kanban)
-│   │   │   ├── metrics/       # Performance & SLA tracking widgets
-│   │   │   ├── ui/            # Generic components (Buttons, Inputs, Toasts)
-│   │   │   └── NavHeader.tsx  # Global Navigation and Search
-│   │   ├── context/           # Global React Contexts (AuthContext, Density)
-│   │   └── lib/               # 🔧 Core Services (JWT, Prisma DB, Storage)
-│   ├── .env.example           # Example environment template
-│   ├── next.config.ts         # Next.js 15 Compiler Configuration
-│   └── package.json           # Dependency Definitions and Scripts
-\`\`\`
+***Post-Deployment Step***: Update your `NEXT_PUBLIC_APP_URL` variable in Vercel to match your new `it-project-management.vercel.app` production domain name!
 
 ---
 
 ## 🛡️ Default Administrator First Access
 
 Since the authentication database starts empty, you can initialize your first secure user utilizing the platform's API endpoints or directly via the database. It is highly recommended to run a seed script to create your superuser account first.
-
-If a default user is provided during installation, their details are:
 
 - **Username**: `admin@it-management.com`
 - **Password**: `AdminPassword123!@#`

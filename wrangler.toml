@@ -2,12 +2,6 @@ name = "it-project-management-tool"
 main = "src/index.ts"
 compatibility_date = "2024-03-10"
 
-# D1 Database Binding
-[[d1_databases]]
-binding = "DB"
-database_name = "it_tool_db"
-database_id = "your-d1-id-here"
-
-# Cron Trigger for SLA check (1 minute)
+# Cron Trigger for SLA check (every 5 minutes)
 [triggers]
-crons = ["* * * * *"]
+crons = ["*/5 * * * *"]
