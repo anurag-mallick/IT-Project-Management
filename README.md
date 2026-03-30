@@ -13,8 +13,10 @@
 ### 🎫 Intelligent Ticketing System
 - **Omnichannel Views:** Toggle between Kanban Board, List View, or Calendar View depending on your team's workflow.
 - **SLA Management:** Real-time SLA monitors flag high-priority or breaching tickets instantly.
-- **Checklists & Tasks:** Break down complex resolutions into actionable checklists.
-- **Automated Email-to-Ticket Conversion:** Automatically poll your IMAP inbox to create and triage tickets from incoming support emails.
+- **SLA Watch:** Dedicated surveillance of service level commitments with real-time countdowns and urgency grouping.
+- **Automated Email-to-Ticket Conversion:** Integrated IMAP polling logic to automatically generate and triage tickets from incoming support emails.
+- **Integrated Email Settings:** A premium, glassmorphism-themed UI for configuring SMTP/IMAP settings with built-in security features.
+- **Integrated UI Feedback**: Replaced intrusive `alert()` and `window.confirm()` calls with a custom **Toast** system and inline confirmation patterns.
 - **Activity & Audit Trails:** Every modification (status change, date change, new comment) is tracked relentlessly in a unified audit log.
 
 ### 💻 IT Asset Management (ITAM)
@@ -27,10 +29,17 @@
 - **Role-Based Access Control (RBAC):** Distinct `ADMIN` and `STAFF` roles ensure granular permission structures throughout the application.
 - **Secure JWT Implementation:** Cookies are strictly `httpOnly` limiting attack vectors like XSS.
 
-### ⚡ Performance & Usability
-- **Premium Interface:** Glassmorphism aesthetics, dynamic dark mode, and seamless micro-interactions using Framer Motion.
-- **Density Controls:** Users can switch between "Compact", "Comfortable", and "Spacious" UI themes instantly.
-- **Instant Global Search:** Hit the search bar at any point to query tickets and assets globally.
+### ⚡ Premium UI/UX Features
+- **Glassmorphism Aesthetics:** Modern, sleek interface with blurred backdrops and vibrant gradients.
+- **Dynamic Density System:** Switch between **Compact**, **Comfortable**, or **Spacious** UI modes instantly.
+- **Micro-Animations:** Fluid transitions and state changes powered by Framer Motion.
+- **Integrated Feedback System:** Custom Toast notifications and inline confirmation patterns replace browser defaults.
+
+### 📧 Advanced Email Infrastructure
+- **Unified Email Settings UI:** A dedicated, secure interface (Admin Only) to manage SMTP and IMAP credentials.
+- **Password Security:** Toggle-able password visibility and secure database-backed storage.
+- **Dynamic IMAP Security:** Easy switching between `None`, `Always (TLS)`, and `Required (STARTTLS)` protocols.
+- **Automated Polling:** Background task integration for converting incoming emails to actionable tickets.
 
 ---
 
