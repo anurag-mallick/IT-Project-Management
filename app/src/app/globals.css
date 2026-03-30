@@ -206,3 +206,22 @@ h3 {
   filter: drop-shadow(0 0 30px rgba(239, 68, 68, 0.8)) drop-shadow(0 0 50px rgba(249, 115, 22, 0.4));
   transform: scale(1.05);
 }
+
+/* Logo Animation */
+@keyframes logoPulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
+  }
+
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(37, 99, 235, 0.5);
+  }
+}
+
+.logo-animate {
+  animation: logoPulse 2s ease-in-out infinite;
+}

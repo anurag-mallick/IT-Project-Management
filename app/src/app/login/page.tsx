@@ -4,20 +4,12 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Shield, Mail, Lock, AlertCircle, Cpu, Zap, ShieldCheck, Globe, Github, Linkedin } from 'lucide-react';
-import Image from 'next/image';
 
-// Dranzer Logo Component with flying animation
-const DragonLogo = ({ animate }: { animate: boolean }) => {
+// Horizon IT Logo Component
+const HorizonLogo = ({ animate }: { animate: boolean }) => {
   return (
-    <div className={`w-32 h-32 relative ${animate ? 'dragon-animate' : 'dragon-settled'}`}>
-      <Image
-        src="https://i.pinimg.com/1200x/4f/9c/18/4f9c184bf62b8bf59781032d05fd350e.jpg"
-        alt="Dranzer Beyblade Logo"
-        fill
-        className="object-contain rounded-lg"
-        priority
-        unoptimized
-      />
+    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-600/20 ${animate ? 'logo-animate' : ''}`}>
+      <Cpu size={24} className="text-white" />
     </div>
   );
 };
@@ -82,7 +74,7 @@ export default function LoginPage() {
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #ffffff10 1px, transparent 0)', backgroundSize: '40px 40px' }} />
 
         <div className="relative z-10 flex items-center gap-3">
-          <DragonLogo animate={dragonAnimating} />
+          <HorizonLogo animate={dragonAnimating} />
           <span className="text-xl font-black tracking-tighter text-white">HORIZON<span className="text-blue-500">IT</span></span>
         </div>
 
