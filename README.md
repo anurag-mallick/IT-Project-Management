@@ -14,6 +14,7 @@
 - **Omnichannel Views:** Toggle between Kanban Board, List View, or Calendar View depending on your team's workflow.
 - **SLA Management:** Real-time SLA monitors flag high-priority or breaching tickets instantly.
 - **Checklists & Tasks:** Break down complex resolutions into actionable checklists.
+- **Automated Email-to-Ticket Conversion:** Automatically poll your IMAP inbox to create and triage tickets from incoming support emails.
 - **Activity & Audit Trails:** Every modification (status change, date change, new comment) is tracked relentlessly in a unified audit log.
 
 ### 💻 IT Asset Management (ITAM)
@@ -40,7 +41,8 @@
 | **Next.js 15**   | Full-Stack Framework (App Router)      | Provides seamless Server Actions, App Router caching, and optimized builds.     |
 | **Neon**         | Serverless PostgreSQL Database          | Branching, instant scaling, and auto-suspending free tiers.                    |
 | **Prisma ORM**   | Database interactions                   | Type-safe queries mapped perfectly to our highly relational schema.             |
-| **Nodemailer**   | SMTP Email                              | Robust, self-contained email delivery via standard SMTP protocols.              |
+| **Nodemailer**   | Outbound SMTP Email                     | Robust, self-contained email delivery via standard SMTP protocols.              |
+| **ImapFlow**     | Inbound IMAP Polling                    | Automated fetching and parsing of incoming support emails.                      |
 | **Local Storage**| File Attachments                        | Simple, reliable local file uploads served directly from the public directory. |
 | **Tailwind CSS** | Styling & Utility                       | Unmatched iteration speed with extensive dark mode support.                     |
 
@@ -98,8 +100,9 @@ SMTP_USER="your@email.com"
 SMTP_PASS="your-app-password"
 SMTP_FROM="Horizon IT <your@email.com>"
 
-# 4. SLA Cron
+# 4. Automation & Cron
 SLA_CRON_SECRET="another-random-secret"
+CRON_SECRET="your-secure-polling-token"
 
 # 5. Application Metadata
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
@@ -130,6 +133,13 @@ Horizon IT is optimized for **Vercel** but can be deployed anywhere that support
 4. **Click Deploy**.
 
 ***Post-Deployment Step***: Update your `NEXT_PUBLIC_APP_URL` variable in Vercel to match your new `it-project-management.vercel.app` production domain name!
+
+### 🤖 Automated Email Polling (Cron)
+To enable automatic ticket creation from emails, set up a cron job (e.g., via Vercel Cron or a custom trigger) to call:
+`GET ${NEXT_PUBLIC_APP_URL}/api/cron/poll-emails`
+
+**Headers required:**
+- `CRON_SECRET`: Must match your environment variable for security.
 
 ---
 
