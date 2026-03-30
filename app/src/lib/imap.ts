@@ -3,13 +3,36 @@ import { simpleParser } from 'mailparser';
 import { prisma } from './prisma';
 
 export async function pollEmails() {
+  const keys = ['IMAP_HOST', 'IMAP_PORT', 'IMAP_USER', 'IMAP_PASS', 'IMAP_TICKET_FOLDER'];
+  const settings = await prisma.globalSetting.findMany({
+    where: { key: { in: keys } }
+  });
+  
+  const settingsMap = settings.reduce((acc: Record<string, string>, s) => {
+    acc[s.key] = s.value;
+    return acc;
+  }, {});
+
+  const config = {
+    host: settingsMap.IMAP_HOST || process.env.IMAP_HOST || '',
+    port: parseInt(settingsMap.IMAP_PORT || process.env.IMAP_PORT || '993'),
+    user: settingsMap.IMAP_USER || process.env.IMAP_USER || '',
+    pass: settingsMap.IMAP_PASS || process.env.IMAP_PASS || '',
+    folder: settingsMap.IMAP_TICKET_FOLDER || process.env.IMAP_TICKET_FOLDER || 'INBOX',
+  };
+
+  if (!config.host || !config.user) {
+    console.warn('IMAP settings not configured. Skipping email polling.');
+    return;
+  }
+
   const client = new ImapFlow({
-    host: process.env.IMAP_HOST || '',
-    port: parseInt(process.env.IMAP_PORT || '993'),
+    host: config.host,
+    port: config.port,
     secure: true,
     auth: {
-      user: process.env.IMAP_USER || '',
-      pass: process.env.IMAP_PASS || '',
+      user: config.user,
+      pass: config.pass,
     },
     tls: {
       rejectUnauthorized: false
@@ -20,7 +43,7 @@ export async function pollEmails() {
     await client.connect();
 
     // Select the folder to poll
-    const mailbox = await client.mailboxOpen(process.env.IMAP_TICKET_FOLDER || 'INBOX');
+    const mailbox = await client.mailboxOpen(config.folder);
     console.log('Opened mailbox:', mailbox.path);
 
     // Search for unread messages

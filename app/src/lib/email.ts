@@ -1,25 +1,46 @@
 import nodemailer from 'nodemailer';
 import { Ticket } from '@/types';
+import { prisma } from './prisma';
 
-let transporter: nodemailer.Transporter | null = null;
+async function getEmailSettings() {
+  const keys = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_SECURE', 'SMTP_USER', 'SMTP_PASS', 'SMTP_FROM'];
+  const settings = await prisma.globalSetting.findMany({
+    where: { key: { in: keys } }
+  });
+  
+  const settingsMap = settings.reduce((acc: Record<string, string>, s) => {
+    acc[s.key] = s.value;
+    return acc;
+  }, {});
 
-function getTransporter() {
-  if (transporter) return transporter;
-
-  transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
+  return {
+    host: settingsMap.SMTP_HOST || process.env.SMTP_HOST,
+    port: parseInt(settingsMap.SMTP_PORT || process.env.SMTP_PORT || '587'),
+    secure: (settingsMap.SMTP_SECURE || process.env.SMTP_SECURE) === 'true',
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: settingsMap.SMTP_USER || process.env.SMTP_USER,
+      pass: settingsMap.SMTP_PASS || process.env.SMTP_PASS,
     },
+    from: settingsMap.SMTP_FROM || process.env.SMTP_FROM || '"IT Support" <support@yourdomain.com>',
+  };
+}
+
+async function getTransporter() {
+  const settings = await getEmailSettings();
+  
+  if (!settings.host || !settings.auth.user) {
+    return null;
+  }
+
+  return nodemailer.createTransport({
+    host: settings.host,
+    port: settings.port,
+    secure: settings.secure,
+    auth: settings.auth,
     tls: {
       rejectUnauthorized: false
     }
   });
-
-  return transporter;
 }
 
 function getBaseTemplate(title: string, content: string, actionUrl?: string, actionLabel?: string) {
@@ -75,7 +96,10 @@ export async function sendTicketEmail({
   password?: string;
   comment?: string;
 }) {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER) {
+  const transporter = await getTransporter();
+  const settings = await getEmailSettings();
+
+  if (!transporter) {
     console.warn('SMTP settings not configured. Skipping email notification.');
     return;
   }
@@ -187,8 +211,8 @@ export async function sendTicketEmail({
   }
 
   try {
-    const info = await getTransporter().sendMail({
-      from: process.env.SMTP_FROM || '"IT Support" <support@yourdomain.com>',
+    const info = await transporter.sendMail({
+      from: settings.from,
       to: recipient.email,
       subject,
       html,
