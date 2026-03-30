@@ -7,7 +7,7 @@ export async function pollEmails() {
   const settings = await prisma.globalSetting.findMany({
     where: { key: { in: keys } }
   });
-  
+
   const settingsMap = settings.reduce((acc: Record<string, string>, s) => {
     acc[s.key] = s.value;
     return acc;
@@ -36,7 +36,7 @@ export async function pollEmails() {
       pass: config.pass,
     },
     tls: {
-      rejectUnauthorized: false
+      rejectUnauthorized: process.env.IMAP_REJECT_UNAUTHORIZED !== 'false'
     }
   });
 
@@ -50,9 +50,9 @@ export async function pollEmails() {
     // Search for unread messages
     for await (const message of client.fetch({ seen: false }, { source: true })) {
       if (!message.source) continue;
-      
+
       const parsed: any = await simpleParser(message.source);
-      
+
       const title = parsed.subject || 'No Subject';
       const description = parsed.text || parsed.html || 'No Content';
       const requesterEmail = parsed.from?.value[0]?.address || 'anonymous@example.com';

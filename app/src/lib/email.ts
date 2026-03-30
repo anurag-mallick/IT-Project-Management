@@ -36,7 +36,7 @@ export async function getTransporter() {
       pass: config.pass,
     },
     tls: {
-      rejectUnauthorized: false
+      rejectUnauthorized: process.env.SMTP_REJECT_UNAUTHORIZED !== 'false'
     }
   });
 }
@@ -46,7 +46,7 @@ const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 function getBaseTemplate(title: string, content: string, actionUrl?: string, actionLabel?: string) {
   const primaryColor = '#2563eb';
   const bgColor = '#f8fafc';
-  
+
   return `
     <!DOCTYPE html>
     <html>

@@ -57,7 +57,7 @@ export const POST = withAuth(async (req: NextRequest, user: SessionUser) => {
   try {
     const body = await req.json();
     const { title, description, priority, status, assignedToId, assetId, tags } = body;
-    
+
     if (!title || !description) {
       return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
     }
@@ -84,7 +84,7 @@ export const POST = withAuth(async (req: NextRequest, user: SessionUser) => {
     const dbUser = await prisma.user.findUnique({
       where: { id: user.id }
     });
-    
+
     await prisma.activityLog.create({
       data: {
         ticketId: ticket.id,
@@ -129,7 +129,7 @@ export const POST = withAuth(async (req: NextRequest, user: SessionUser) => {
     }
 
     if (notificationPromises.length > 0) {
-      Promise.allSettled(notificationPromises);
+      await Promise.allSettled(notificationPromises);
     }
 
     return NextResponse.json(autoUpdatedTicket);
@@ -139,11 +139,11 @@ export const POST = withAuth(async (req: NextRequest, user: SessionUser) => {
       stack: err.stack,
       code: err.code
     });
-    
+
     const isAuthError = err.message?.includes('Authentication failed') || err.message?.includes('password authentication failed');
-    return NextResponse.json({ 
-      error: isAuthError 
-        ? 'Database authentication failed. Check your DATABASE_URL in .env.' 
+    return NextResponse.json({
+      error: isAuthError
+        ? 'Database authentication failed. Check your DATABASE_URL in .env.'
         : `Failed to create ticket: ${err.message || 'Unknown error'}`
     }, { status: 500 });
   }

@@ -1,10 +1,14 @@
 # 🚀 Horizon IT – Complete IT Asset & Helpdesk Management Suite
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black.svg)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-7.5-2D3748.svg)](https://www.prisma.io/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-4-38B2AC.svg)](https://tailwindcss.com/)
 
 **Horizon IT** is a modern, blazing-fast, and comprehensive IT service management (ITSM) platform built entirely on Next.js 15, Neon Postgres, and Tailwind CSS. It is designed to act as a central hub for all IT operations: tracking tickets, resolving user issues, managing assets, maintaining SLAs, and discovering critical infrastructure intelligence.
 
-![Horizon IT Cover Image](https://via.placeholder.com/1200x600?text=Horizon+IT+Management+Suite) *(Placeholder for a hero screenshot)*
+![Horizon IT Cover Image](https://via.placeholder.com/1200x600?text=Horizon+IT+Management+Suite)
 
 ---
 
@@ -59,7 +63,7 @@
 
 ## 📋 Prerequisites & Setup
 
-Getting Horizon IT running in your environment is simple. 
+Getting Horizon IT running in your environment is simple.
 
 ### 1. Requirements
 - **Node.js**: v18+ (v20+ Recommended)
@@ -124,7 +128,15 @@ npx prisma generate
 npx prisma db push
 ```
 
-### Step 5: Start the Local Server
+### Step 5: Create First Admin User
+Run the seed script to create your initial admin account:
+```bash
+npm run seed
+```
+
+Or manually create an admin user via the API endpoint after starting the server.
+
+### Step 6: Start the Local Server
 ```bash
 npm run dev
 ```
@@ -152,14 +164,64 @@ To enable automatic ticket creation from emails, set up a cron job (e.g., via Ve
 
 ---
 
-## 🛡️ Default Administrator First Access
+## 🔒 Security Best Practices
 
-Since the authentication database starts empty, you can initialize your first secure user utilizing the platform's API endpoints or directly via the database. It is highly recommended to run a seed script to create your superuser account first.
+### Environment Variables
+- **JWT_SECRET**: Generate a strong random string (at least 32 characters). Never use the default fallback in production.
+- **DATABASE_URL**: Use connection pooling and SSL in production.
+- **SMTP/IMAP**: Store credentials securely. Consider using environment-specific secrets management.
 
-- **Username**: `admin@it-management.com`
-- **Password**: `AdminPassword123!@#`
+### TLS Configuration
+- By default, SMTP and IMAP connections require valid TLS certificates.
+- To disable certificate validation (not recommended for production), set:
+  ```env
+  SMTP_REJECT_UNAUTHORIZED=false
+  IMAP_REJECT_UNAUTHORIZED=false
+  ```
 
-*(Important: Change your superuser password immediately after logging in for the first time)*
+### User Management
+- Change the default admin password immediately after first login.
+- Use strong, unique passwords for all accounts.
+- Regularly audit user accounts and permissions.
+
+---
+
+## 📊 Database Schema Overview
+
+The application uses the following core models:
+
+| Model | Description |
+|-------|-------------|
+| **User** | System users with roles (ADMIN, STAFF, USER) |
+| **Ticket** | Support tickets with status, priority, and SLA tracking |
+| **Comment** | Comments on tickets |
+| **Attachment** | File attachments for tickets |
+| **ActivityLog** | Audit trail for all ticket changes |
+| **Asset** | IT assets (hardware, software, licenses) |
+| **SLAPolicy** | SLA response time policies by priority |
+| **Automation** | Automated rules for ticket processing |
+| **GlobalSetting** | System-wide configuration settings |
+
+---
+
+## 🛠️ Development
+
+### Available Scripts
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run test         # Run tests with Vitest
+npm run seed         # Seed database with initial data
+```
+
+### Testing
+```bash
+npm run test         # Run unit tests
+npm run test:ui      # Run tests with UI
+npm run e2e          # Run end-to-end tests with Playwright
+```
 
 ---
 
@@ -173,7 +235,7 @@ See the [LICENSE](LICENSE) file for more information.
 
 ### Developed By
 
-**Anurag Mallick**  
+**Anurag Mallick**
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Anurag_Mallick-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/anuragmallick/)
 
 *Horizon IT Open Source Tooling | Built on Next.js 15, Neon Postgres, Prisma, and Tailwind CSS v4*

@@ -3,8 +3,15 @@ import { prisma } from '@/lib/prisma';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
+// Security: Require JWT_SECRET in production, use fallback only in development
+if (!process.env.JWT_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('JWT_SECRET environment variable is required in production');
+  }
+  console.warn('⚠️  WARNING: Using fallback JWT_SECRET - NOT for production use!');
+}
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'fallback-secret-for-dev-only-replace-immediately'
+  process.env.JWT_SECRET || 'dev-only-fallback-secret-change-in-production'
 );
 
 export interface SessionUser {
@@ -45,7 +52,7 @@ export async function getUser(): Promise<SessionUser | null> {
       where: { email: payload.email },
       select: { id: true, email: true, role: true, name: true, username: true }
     });
-    
+
     if (!dbUser) return null;
 
     return {
@@ -84,11 +91,11 @@ export async function requireAdmin(user: SessionUser) {
 export function withAuth(handler: (req: NextRequest, user: SessionUser, context?: any) => Promise<NextResponse>) {
   return async (req: NextRequest, context?: any) => {
     const user = await getUser();
-    
+
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     return handler(req, user, context);
   };
 }

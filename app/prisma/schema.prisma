@@ -79,6 +79,9 @@ model Ticket {
   @@index([assignedToId])
   @@index([priority])
   @@index([createdAt])
+  @@index([status, priority])  // Composite index for filtered queries
+  @@index([dueDate])            // Index for SLA queries
+  @@index([folderId])           // Index for folder-based queries
 }
 
 model Comment {
