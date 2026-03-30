@@ -5,89 +5,150 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Shield, Mail, Lock, AlertCircle, Cpu, Zap, ShieldCheck, Globe, Github, Linkedin } from 'lucide-react';
 
-// Dragon SVG Component with flying animation
+// Dranzer Beyblade Logo Component with flying animation
 const DragonLogo = ({ animate }: { animate: boolean }) => {
   return (
     <svg
       viewBox="0 0 200 200"
       className={`w-32 h-32 ${animate ? 'dragon-animate' : 'dragon-settled'}`}
       style={{
-        filter: animate ? 'drop-shadow(0 0 20px rgba(59, 130, 246, 0.5))' : undefined,
+        filter: animate ? 'drop-shadow(0 0 20px rgba(239, 68, 68, 0.6))' : undefined,
       }}
     >
       <defs>
-        <linearGradient id="dragonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#3b82f6" />
-          <stop offset="50%" stopColor="#8b5cf6" />
-          <stop offset="100%" stopColor="#06b6d4" />
+        {/* Red/Orange Dranzer gradient */}
+        <linearGradient id="dranzerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#dc2626" />
+          <stop offset="30%" stopColor="#ef4444" />
+          <stop offset="60%" stopColor="#f97316" />
+          <stop offset="100%" stopColor="#fbbf24" />
         </linearGradient>
-        <linearGradient id="fireGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#f59e0b" />
-          <stop offset="50%" stopColor="#ef4444" />
+        {/* Fire gradient */}
+        <linearGradient id="fireGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stopColor="#dc2626" />
+          <stop offset="50%" stopColor="#f97316" />
+          <stop offset="100%" stopColor="#fbbf24" />
+        </linearGradient>
+        {/* Inner fire glow */}
+        <radialGradient id="fireGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#fef3c7" />
           <stop offset="100%" stopColor="#f97316" />
-        </linearGradient>
+        </radialGradient>
       </defs>
 
-      {/* Dragon Body */}
+      {/* Phoenix/Dranzer Wings - Large spread wings */}
       <path
-        d="M40 100 Q30 80 50 70 Q70 60 90 65 Q110 70 120 85 Q130 100 120 115 Q110 130 90 135 Q70 140 50 130 Q30 120 40 100"
-        fill="url(#dragonGradient)"
-        className="dragon-body"
-      />
-
-      {/* Dragon Head */}
-      <ellipse cx="135" cy="75" rx="25" ry="20" fill="url(#dragonGradient)" />
-
-      {/* Dragon Eye */}
-      <circle cx="142" cy="70" r="6" fill="#0f172a" />
-      <circle cx="144" cy="68" r="2" fill="#ffffff" />
-
-      {/* Dragon Horns */}
-      <path d="M125 58 Q130 45 140 50" stroke="url(#dragonGradient)" strokeWidth="4" fill="none" />
-      <path d="M145 55 Q155 40 160 50" stroke="url(#dragonGradient)" strokeWidth="4" fill="none" />
-
-      {/* Dragon Snout */}
-      <path d="M155 75 Q170 70 175 80 Q170 90 155 85" fill="url(#dragonGradient)" />
-
-      {/* Dragon Nostril */}
-      <circle cx="168" cy="78" r="2" fill="#0f172a" />
-
-      {/* Dragon Wings */}
-      <path
-        d="M80 70 Q60 40 40 50 Q20 60 30 80 Q40 100 60 90"
-        fill="url(#dragonGradient)"
-        opacity="0.8"
+        d="M100 100 Q70 60 30 40 Q10 35 5 50 Q15 65 40 75 Q20 90 10 110 Q25 120 50 115 Q60 105 100 100"
+        fill="url(#dranzerGradient)"
+        opacity="0.9"
         className="dragon-wing"
       />
       <path
-        d="M100 65 Q85 35 70 45 Q55 55 65 75 Q75 95 90 85"
-        fill="url(#dragonGradient)"
-        opacity="0.6"
-        className="dragon-wing-inner"
+        d="M100 100 Q130 60 170 40 Q190 35 195 50 Q185 65 160 75 Q180 90 190 110 Q175 120 150 115 Q140 105 100 100"
+        fill="url(#dranzerGradient)"
+        opacity="0.9"
+        className="dragon-wing"
       />
 
-      {/* Dragon Tail */}
+      {/* Wing feather details */}
       <path
-        d="M45 115 Q25 125 15 140 Q10 155 25 160 Q40 155 50 140 Q55 125 50 115"
-        fill="url(#dragonGradient)"
+        d="M60 70 Q45 55 35 60 Q50 70 60 70"
+        fill="#fbbf24"
+        opacity="0.6"
+      />
+      <path
+        d="M140 70 Q155 55 165 60 Q150 70 140 70"
+        fill="#fbbf24"
+        opacity="0.6"
+      />
+
+      {/* Dranzer Body - Compact and powerful */}
+      <ellipse cx="100" cy="105" rx="25" ry="20" fill="url(#dranzerGradient)" />
+
+      {/* Dranzer Head - Phoenix style */}
+      <path
+        d="M85 85 Q100 60 115 85 Q110 95 100 98 Q90 95 85 85"
+        fill="url(#dranzerGradient)"
+      />
+
+      {/* Beak */}
+      <path
+        d="M100 90 L108 95 L100 100"
+        fill="#fbbf24"
+      />
+
+      {/* Eyes - Fiery */}
+      <circle cx="92" cy="82" r="4" fill="#0f172a" />
+      <circle cx="93" cy="81" r="1.5" fill="#fbbf24" />
+      <circle cx="108" cy="82" r="4" fill="#0f172a" />
+      <circle cx="109" cy="81" r="1.5" fill="#fbbf24" />
+
+      {/* Head crest/flames */}
+      <path
+        d="M100 65 Q95 50 100 40 Q105 50 100 65"
+        fill="url(#fireGradient)"
+        className="dragon-fire"
+      />
+      <path
+        d="M95 70 Q88 55 92 45 Q96 55 95 70"
+        fill="url(#fireGradient)"
+        opacity="0.8"
+      />
+      <path
+        d="M105 70 Q112 55 108 45 Q104 55 105 70"
+        fill="url(#fireGradient)"
+        opacity="0.8"
+      />
+
+      {/* Tail - Fiery feathers */}
+      <path
+        d="M100 125 Q85 140 70 155 Q65 165 75 160 Q90 150 100 140"
+        fill="url(#dranzerGradient)"
+        className="dragon-tail"
+      />
+      <path
+        d="M100 125 Q115 140 130 155 Q135 165 125 160 Q110 150 100 140"
+        fill="url(#dranzerGradient)"
         className="dragon-tail"
       />
 
-      {/* Dragon Spikes */}
-      <path d="M95 65 L100 50 L105 65" fill="url(#dragonGradient)" />
-      <path d="M105 70 L112 55 L118 70" fill="url(#dragonGradient)" />
-      <path d="M112 80 L120 65 L127 80" fill="url(#dragonGradient)" />
+      {/* Tail flame tips */}
+      <path
+        d="M70 155 Q65 165 75 165 Q70 155 70 155"
+        fill="url(#fireGradient)"
+        className="dragon-fire"
+      />
+      <path
+        d="M130 155 Q135 165 125 165 Q130 155 130 155"
+        fill="url(#fireGradient)"
+        className="dragon-fire"
+      />
 
-      {/* Dragon Claws */}
-      <path d="M60 130 Q55 145 50 150" stroke="url(#dragonGradient)" strokeWidth="3" fill="none" />
-      <path d="M75 135 Q70 150 65 155" stroke="url(#dragonGradient)" strokeWidth="3" fill="none" />
-      <path d="M90 138 Q85 153 80 158" stroke="url(#dragonGradient)" strokeWidth="3" fill="none" />
+      {/* Fire aura around body */}
+      <ellipse
+        cx="100"
+        cy="105"
+        rx="35"
+        ry="30"
+        fill="none"
+        stroke="url(#fireGradient)"
+        strokeWidth="3"
+        opacity="0.4"
+        className="dragon-fire"
+      />
 
-      {/* Fire Breath */}
+      {/* Blazing fire breath */}
       <g className="dragon-fire">
-        <ellipse cx="185" cy="80" rx="15" ry="8" fill="url(#fireGradient)" opacity="0.8" />
-        <ellipse cx="195" cy="78" rx="10" ry="6" fill="url(#fireGradient)" opacity="0.6" />
-        <ellipse cx="190" cy="85" rx="8" ry="5" fill="#f59e0b" opacity="0.7" />
+        <ellipse cx="100" cy="45" rx="20" ry="12" fill="url(#fireGlow)" opacity="0.9" />
+        <ellipse cx="100" cy="35" rx="15" ry="10" fill="url(#fireGradient)" opacity="0.8" />
+        <ellipse cx="100" cy="25" rx="10" ry="8" fill="#fbbf24" opacity="0.7" />
+        <ellipse cx="100" cy="18" rx="6" ry="5" fill="#fef3c7" opacity="0.6" />
+      </g>
+
+      {/* Side flames */}
+      <g className="dragon-fire" opacity="0.7">
+        <ellipse cx="55" cy="85" rx="8" ry="5" fill="url(#fireGradient)" transform="rotate(-30 55 85)" />
+        <ellipse cx="145" cy="85" rx="8" ry="5" fill="url(#fireGradient)" transform="rotate(30 145 85)" />
       </g>
     </svg>
   );

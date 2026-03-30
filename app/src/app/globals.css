@@ -166,17 +166,18 @@ h3 {
 
   0%,
   100% {
-    filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+    filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.6));
   }
 
   50% {
-    filter: drop-shadow(0 0 40px rgba(59, 130, 246, 0.8)) drop-shadow(0 0 60px rgba(139, 92, 246, 0.4));
+    filter: drop-shadow(0 0 40px rgba(239, 68, 68, 0.9)) drop-shadow(0 0 60px rgba(249, 115, 22, 0.5));
   }
 }
 
 .dragon-animate {
   animation: dragonFly 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards,
     dragonGlow 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.6));
 }
 
 .dragon-animate .dragon-wing {
@@ -197,11 +198,11 @@ h3 {
 
 /* Dragon settled state */
 .dragon-settled {
-  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+  filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.6));
   transition: all 0.5s ease-out;
 }
 
 .dragon-settled:hover {
-  filter: drop-shadow(0 0 30px rgba(59, 130, 246, 0.7)) drop-shadow(0 0 50px rgba(139, 92, 246, 0.3));
+  filter: drop-shadow(0 0 30px rgba(239, 68, 68, 0.8)) drop-shadow(0 0 50px rgba(249, 115, 22, 0.4));
   transform: scale(1.05);
 }
