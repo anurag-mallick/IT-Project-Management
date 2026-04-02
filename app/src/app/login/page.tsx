@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { Shield, Mail, Lock, AlertCircle, Cpu, Zap, ShieldCheck, Globe, Github, Linkedin } from 'lucide-react';
 
@@ -141,7 +142,7 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between px-1">
                   <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Password</label>
-                  <button type="button" className="text-[10px] font-black text-blue-500 uppercase tracking-widest hover:text-blue-400 transition-colors">Forgot?</button>
+                  <Link href="/forgot-password" className="text-[10px] font-black text-blue-500 uppercase tracking-widest hover:text-blue-400 transition-colors">Forgot?</Link>
                 </div>
                 <div className="relative group">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-blue-500 transition-colors" size={16} />
